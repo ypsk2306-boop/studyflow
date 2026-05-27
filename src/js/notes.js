@@ -14,6 +14,10 @@ export function initNotes() {
       const page = addNotePage('New Lecture Note', 'General');
       activePageId = page.id;
       renderNotes();
+      const layout = document.querySelector('.notes-workspace-layout');
+      if (layout) {
+        layout.classList.add('show-editor');
+      }
     });
   }
 
@@ -23,6 +27,21 @@ export function initNotes() {
       const page = addNotePage('Biology 101 - Cell Structure', 'Biology');
       activePageId = page.id;
       renderNotes();
+      const layout = document.querySelector('.notes-workspace-layout');
+      if (layout) {
+        layout.classList.add('show-editor');
+      }
+    });
+  }
+
+  // Back button for mobile view
+  const backBtn = document.getElementById('notes-back-to-sidebar-btn');
+  if (backBtn) {
+    backBtn.addEventListener('click', () => {
+      const layout = document.querySelector('.notes-workspace-layout');
+      if (layout) {
+        layout.classList.remove('show-editor');
+      }
     });
   }
 
@@ -91,6 +110,11 @@ export function renderNotes() {
     // Pick the most recent note by default
     const sorted = [...state.notes].sort((a,b) => new Date(b.updatedAt) - new Date(a.updatedAt));
     activePageId = sorted[0].id;
+  }
+
+  const layout = document.querySelector('.notes-workspace-layout');
+  if (layout && !activePageId) {
+    layout.classList.remove('show-editor');
   }
 
   const emptyState = document.getElementById('editor-empty-state');
@@ -179,6 +203,10 @@ function renderSidebarPages(state) {
       
       activePageId = item.getAttribute('data-page-id');
       renderNotes();
+      const layout = document.querySelector('.notes-workspace-layout');
+      if (layout) {
+        layout.classList.add('show-editor');
+      }
     });
   });
 }
