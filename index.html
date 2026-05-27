@@ -1,0 +1,887 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>StudyFlow - Ultimate Student Dashboard & Planner</title>
+  
+  <!-- Premium Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  
+  <!-- Main Stylesheet -->
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Background decorative blur shapes -->
+  <div class="blobblob blob-1"></div>
+  <div class="blobblob blob-2"></div>
+  <div class="blobblob blob-3"></div>
+
+  <div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="app-sidebar">
+      <div class="sidebar-header">
+        <div class="logo">
+          <div class="logo-icon">
+            <i data-lucide="graduation-cap"></i>
+          </div>
+          <span class="logo-text">StudyFlow</span>
+        </div>
+      </div>
+      
+      <!-- User Profile Widget -->
+      <div class="user-profile-widget">
+        <div class="avatar" id="user-avatar">S</div>
+        <div class="user-info">
+          <div class="user-name" id="user-name-display">Scholar Mode</div>
+          <div class="streak-badge">
+            <i data-lucide="flame"></i>
+            <span id="sidebar-streak-count">0</span> day streak
+          </div>
+        </div>
+        <button class="logout-btn" id="logout-trigger-btn" title="Logout Account">
+          <i data-lucide="log-out"></i>
+        </button>
+      </div>
+      
+      <!-- Nav Links -->
+      <nav class="sidebar-nav">
+        <button class="nav-btn active" data-tab="dashboard">
+          <i data-lucide="layout-dashboard"></i>
+          <span>Dashboard</span>
+        </button>
+        <button class="nav-btn" data-tab="planner">
+          <i data-lucide="check-square"></i>
+          <span>Study Planner</span>
+        </button>
+        <button class="nav-btn" data-tab="timer">
+          <i data-lucide="timer"></i>
+          <span>Focus Room</span>
+        </button>
+        <button class="nav-btn" data-tab="notes">
+          <i data-lucide="book-open"></i>
+          <span>Notes</span>
+        </button>
+        <button class="nav-btn" data-tab="analytics">
+          <i data-lucide="bar-chart-2"></i>
+          <span>Analytics</span>
+        </button>
+        <button class="nav-btn" data-tab="settings">
+          <i data-lucide="settings"></i>
+          <span>Settings</span>
+        </button>
+      </nav>
+      
+      <!-- Sidebar Footer / Theme Controls -->
+      <div class="sidebar-footer">
+        <div class="theme-toggle-container">
+          <button class="theme-opt active" data-theme="dark" title="Dark Glass Mode">
+            <i data-lucide="moon"></i>
+          </button>
+          <button class="theme-opt" data-theme="light" title="Light Glass Mode">
+            <i data-lucide="sun"></i>
+          </button>
+          <button class="theme-opt" data-theme="sepia" title="Cozy Sepia Mode">
+            <i data-lucide="book-marked"></i>
+          </button>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="app-main">
+      <header class="app-header">
+        <div class="header-left">
+          <h1 id="header-title">Welcome back, Scholar</h1>
+          <p id="header-subtitle" class="header-date">Tuesday, May 26</p>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-secondary" id="quick-pomodoro-btn">
+            <i data-lucide="play-circle"></i> Quick Focus
+          </button>
+          <button class="btn btn-primary" id="quick-task-btn">
+            <i data-lucide="plus"></i> Add Task
+          </button>
+        </div>
+      </header>
+
+      <!-- View Containers -->
+      <div class="view-content">
+
+        <!-- 1. DASHBOARD VIEW -->
+        <section id="view-dashboard" class="app-view active">
+          <!-- Overview Cards -->
+          <div class="dashboard-stats-grid">
+            <div class="stat-card">
+              <div class="stat-icon focus-time-icon"><i data-lucide="clock"></i></div>
+              <div class="stat-data">
+                <span class="stat-label">Focus Time</span>
+                <h3 id="stat-focus-time">0h 0m</h3>
+                <span class="stat-trend trend-up"><i data-lucide="trending-up"></i> Active today</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon tasks-completed-icon"><i data-lucide="check-circle-2"></i></div>
+              <div class="stat-data">
+                <span class="stat-label">Tasks Completed</span>
+                <h3 id="stat-tasks-done">0 / 0</h3>
+                <span class="stat-trend" id="stat-tasks-rate">0% completed</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon current-streak-icon"><i data-lucide="flame"></i></div>
+              <div class="stat-data">
+                <span class="stat-label">Study Streak</span>
+                <h3 id="stat-streak">0 Days</h3>
+                <span class="stat-trend" id="stat-streak-msg">Keep it burning!</span>
+              </div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-icon focus-score-icon"><i data-lucide="zap"></i></div>
+              <div class="stat-data">
+                <span class="stat-label">Focus Score</span>
+                <h3 id="stat-focus-score">0%</h3>
+                <span class="stat-trend" id="stat-score-msg">Quality of sessions</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Charts Row -->
+          <div class="dashboard-charts-grid">
+            <!-- Left Chart: Study Distribution -->
+            <div class="dashboard-card chart-card">
+              <div class="card-header">
+                <h3>Weekly Study distribution (Hours)</h3>
+                <i data-lucide="bar-chart-3"></i>
+              </div>
+              <div class="chart-container" id="weekly-svg-chart-container">
+                <!-- SVG Chart populated dynamically -->
+              </div>
+            </div>
+            
+            <!-- Right Chart: Target Goal -->
+            <div class="dashboard-card chart-card flex-center">
+              <div class="card-header">
+                <h3>Daily Study Goal Progress</h3>
+                <i data-lucide="target"></i>
+              </div>
+              <div class="goal-progress-container">
+                <div class="circular-progress-wrapper">
+                  <svg class="circular-progress-svg" viewBox="0 0 100 100">
+                    <circle class="circle-bg" cx="50" cy="50" r="42"></circle>
+                    <circle class="circle-progress" id="dashboard-goal-ring" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264"></circle>
+                  </svg>
+                  <div class="goal-text">
+                    <span id="dashboard-goal-percentage" class="percentage">0%</span>
+                    <span id="dashboard-goal-duration" class="subtext">0 / 2 hours</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Grid: Quick notes & Tasks -->
+          <div class="dashboard-details-grid">
+            <!-- Tasks widget -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Focus Tasks For Today</h3>
+                <a href="#" class="view-all-link" data-tab-link="planner">View planner <i data-lucide="arrow-right"></i></a>
+              </div>
+              <div class="widget-list" id="widget-today-tasks">
+                <!-- Populated dynamically -->
+                <div class="list-placeholder">No tasks due today. Create one to get started!</div>
+              </div>
+            </div>
+
+            <!-- Notes widget -->
+            <div class="dashboard-card">
+              <div class="card-header">
+                <h3>Recent Notes Pages</h3>
+                <a href="#" class="view-all-link" data-tab-link="notes">Open notes <i data-lucide="arrow-right"></i></a>
+              </div>
+              <div class="widget-list" id="widget-recent-notes">
+                <!-- Populated dynamically -->
+                <div class="list-placeholder">No notebook pages found. Create notes in Notes tab!</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 2. STUDY PLANNER VIEW (KANBAN) -->
+        <section id="view-planner" class="app-view">
+          <div class="planner-controls">
+            <div class="search-filter-bar">
+              <div class="search-input-wrapper">
+                <i data-lucide="search"></i>
+                <input type="text" id="planner-search" placeholder="Search tasks by name or tag...">
+              </div>
+              <select id="planner-subject-filter">
+                <option value="all">All Subjects</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="kanban-board">
+            <!-- Column 1: To Do -->
+            <div class="kanban-column" id="col-todo" data-status="todo">
+              <div class="column-header">
+                <span class="column-dot dot-todo"></span>
+                <h3>To Do</h3>
+                <span class="column-count" id="count-todo">0</span>
+              </div>
+              <div class="column-cards" id="cards-todo">
+                <!-- Cards added dynamically -->
+              </div>
+              <button class="add-card-btn" data-status="todo">
+                <i data-lucide="plus"></i> Add Task
+              </button>
+            </div>
+
+            <!-- Column 2: In Progress -->
+            <div class="kanban-column" id="col-inprogress" data-status="inprogress">
+              <div class="column-header">
+                <span class="column-dot dot-progress"></span>
+                <h3>In Progress</h3>
+                <span class="column-count" id="count-inprogress">0</span>
+              </div>
+              <div class="column-cards" id="cards-inprogress">
+                <!-- Cards added dynamically -->
+              </div>
+              <button class="add-card-btn" data-status="inprogress">
+                <i data-lucide="plus"></i> Add Task
+              </button>
+            </div>
+
+            <!-- Column 3: Completed -->
+            <div class="kanban-column" id="col-completed" data-status="completed">
+              <div class="column-header">
+                <span class="column-dot dot-completed"></span>
+                <h3>Completed</h3>
+                <span class="column-count" id="count-completed">0</span>
+              </div>
+              <div class="column-cards" id="cards-completed">
+                <!-- Cards added dynamically -->
+              </div>
+              <button class="add-card-btn" data-status="completed">
+                <i data-lucide="plus"></i> Add Task
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 3. FOCUS ROOM VIEW (POMODORO) -->
+        <section id="view-timer" class="app-view">
+          <div class="focus-room-layout">
+            <!-- Left Side: Interactive Timer -->
+            <div class="timer-display-box">
+              <div class="timer-presets">
+                <button class="preset-btn active" data-mode="pomodoro">Pomodoro</button>
+                <button class="preset-btn" data-mode="short">Short Break</button>
+                <button class="preset-btn" data-mode="long">Long Break</button>
+              </div>
+
+              <!-- Breathing visual background circle -->
+              <div class="breath-ring-wrapper">
+                <div class="breath-ring-bg"></div>
+                <div class="breath-ring" id="timer-breath-ring"></div>
+                
+                <!-- Main digital display -->
+                <div class="timer-countdown">
+                  <h2 id="timer-clock">25:00</h2>
+                  <span id="timer-status-text">Ready to focus?</span>
+                </div>
+              </div>
+
+              <div class="timer-controls-row">
+                <button class="btn-timer btn-timer-sec" id="timer-reset" title="Reset Session">
+                  <i data-lucide="rotate-ccw"></i>
+                </button>
+                <button class="btn-timer btn-timer-main" id="timer-start" title="Start Focus">
+                  <i data-lucide="play" id="timer-start-icon"></i>
+                </button>
+                <button class="btn-timer btn-timer-sec" id="timer-skip" title="Skip Session">
+                  <i data-lucide="skip-forward"></i>
+                </button>
+              </div>
+              
+              <div class="timer-session-tally">
+                <span id="timer-session-info">Session #1 • Daily Target: 4 focus sessions</span>
+                <div class="session-dots" id="timer-session-dots">
+                  <span class="session-dot"></span>
+                  <span class="session-dot"></span>
+                  <span class="session-dot"></span>
+                  <span class="session-dot"></span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Right Side: Ambient Sound Machine + Focus Settings -->
+            <div class="focus-settings-box">
+              <div class="settings-card">
+                <h3>Ambient Sound Mixer</h3>
+                <p class="section-desc">Create your study soundtrack. Adjust channels independently.</p>
+                
+                <div class="sound-mixer">
+                  <!-- Rain sound channel -->
+                  <div class="sound-channel" data-sound="rain">
+                    <div class="channel-info">
+                      <button class="sound-mute-btn"><i data-lucide="cloud-rain"></i></button>
+                      <span class="sound-label">Cosy Rain</span>
+                    </div>
+                    <input type="range" class="sound-volume-slider" min="0" max="100" value="0">
+                  </div>
+                  <!-- Cafe sound channel -->
+                  <div class="sound-channel" data-sound="cafe">
+                    <div class="channel-info">
+                      <button class="sound-mute-btn"><i data-lucide="coffee"></i></button>
+                      <span class="sound-label">Parisian Cafe</span>
+                    </div>
+                    <input type="range" class="sound-volume-slider" min="0" max="100" value="0">
+                  </div>
+                  <!-- Binaural Waves channel -->
+                  <div class="sound-channel" data-sound="waves">
+                    <div class="channel-info">
+                      <button class="sound-mute-btn"><i data-lucide="waves"></i></button>
+                      <span class="sound-label">Binaural Waves</span>
+                    </div>
+                    <input type="range" class="sound-volume-slider" min="0" max="100" value="0">
+                  </div>
+                  <!-- Forest channel -->
+                  <div class="sound-channel" data-sound="forest">
+                    <div class="channel-info">
+                      <button class="sound-mute-btn"><i data-lucide="trees"></i></button>
+                      <span class="sound-label">Deep Forest</span>
+                    </div>
+                    <input type="range" class="sound-volume-slider" min="0" max="100" value="0">
+                  </div>
+                </div>
+              </div>
+
+              <!-- Task Binding card -->
+              <div class="settings-card">
+                <h3>Bind to Active Task</h3>
+                <p class="section-desc">Track study metrics directly to a planner item.</p>
+                <div class="task-binder">
+                  <select id="timer-task-binder">
+                    <option value="">None (General Study)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 4. NOTION-LIKE NOTES WORKSPACE -->
+        <section id="view-notes" class="app-view">
+          <div class="notes-workspace-layout">
+            <!-- Notes Sub-Sidebar (Pages list) -->
+            <div class="notes-sidebar">
+              <div class="notes-sidebar-header">
+                <h3>Notebook Pages</h3>
+                <button class="btn-icon" id="add-page-btn" title="Create new notebook page">
+                  <i data-lucide="plus-circle"></i>
+                </button>
+              </div>
+              <div class="notes-page-list" id="notes-pages-tree">
+                <!-- Pages list added dynamically -->
+              </div>
+            </div>
+
+            <!-- Main Notion-like block editor -->
+            <div class="notes-editor-container">
+              <div class="notes-editor-empty-state" id="editor-empty-state">
+                <i data-lucide="book-open"></i>
+                <h3>No Page Open</h3>
+                <p>Select an existing page from the sidebar or create a new one to start drafting notes in your Notes editor.</p>
+                <button class="btn btn-primary" id="editor-create-first-page-btn">Create First Page</button>
+              </div>
+
+              <div class="notes-editor-active" id="editor-active-state" style="display: none;">
+                <!-- Editor Header -->
+                <div class="editor-header">
+                  <div class="page-meta">
+                    <i data-lucide="file-text"></i>
+                    <span id="editor-page-subject">General Notes</span>
+                  </div>
+                  <div class="editor-actions">
+                    <span class="auto-save-tag"><i data-lucide="cloud-lightning"></i> Autosaved</span>
+                    <button class="btn-icon delete-btn" id="delete-current-page-btn" title="Delete Page">
+                      <i data-lucide="trash-2"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Page Title -->
+                <div class="editor-title-container">
+                  <input type="text" id="editor-page-title" placeholder="Untitled Page">
+                </div>
+
+                <!-- Notion Blocks Container -->
+                <div class="editor-blocks-workspace" id="editor-blocks-container">
+                  <!-- Blocks will be populated dynamically -->
+                </div>
+                
+                <!-- Helper instructions -->
+                <div class="editor-helper-hint">
+                  <span class="hint-label">Tips:</span> Type <kbd>/</kbd> to insert rich headers, callouts, lists, or code blocks. Use <kbd>Enter</kbd> to add a new line, and <kbd>Backspace</kbd> on an empty block to clear it.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Rich Block Menu Command Overlay -->
+          <div class="slash-commands-menu" id="slash-menu" style="display: none;">
+            <div class="menu-title">Insert Block</div>
+            <div class="menu-options-list">
+              <button class="slash-item" data-block-type="h1">
+                <div class="item-icon"><i data-lucide="heading-1"></i></div>
+                <div class="item-details">
+                  <span class="item-title">Heading 1</span>
+                  <span class="item-desc">Big section title</span>
+                </div>
+              </button>
+              <button class="slash-item" data-block-type="h2">
+                <div class="item-icon"><i data-lucide="heading-2"></i></div>
+                <div class="item-details">
+                  <span class="item-title">Heading 2</span>
+                  <span class="item-desc">Medium section title</span>
+                </div>
+              </button>
+              <button class="slash-item" data-block-type="h3">
+                <div class="item-icon"><i data-lucide="heading-3"></i></div>
+                <div class="item-details">
+                  <span class="item-title">Heading 3</span>
+                  <span class="item-desc">Small section subtitle</span>
+                </div>
+              </button>
+              <button class="slash-item" data-block-type="bullet">
+                <div class="item-icon"><i data-lucide="list"></i></div>
+                <div class="item-details">
+                  <span class="item-title">Bulleted List</span>
+                  <span class="item-desc">Create a simple bulleted list</span>
+                </div>
+              </button>
+              <button class="slash-item" data-block-type="todo">
+                <div class="item-icon"><i data-lucide="check-square"></i></div>
+                <div class="item-details">
+                  <span class="item-title">To-do List</span>
+                  <span class="item-desc">Checkbox tasks inside notes</span>
+                </div>
+              </button>
+              <button class="slash-item" data-block-type="callout">
+                <div class="item-icon"><i data-lucide="info"></i></div>
+                <div class="item-details">
+                  <span class="item-title">Callout Box</span>
+                  <span class="item-desc">Highlight important details</span>
+                </div>
+              </button>
+              <button class="slash-item" data-block-type="code">
+                <div class="item-icon"><i data-lucide="code-2"></i></div>
+                <div class="item-details">
+                  <span class="item-title">Code Block</span>
+                  <span class="item-desc">Preformatted programming script block</span>
+                </div>
+              </button>
+              <button class="slash-item" data-block-type="divider">
+                <div class="item-icon"><i data-lucide="minus"></i></div>
+                <div class="item-details">
+                  <span class="item-title">Divider</span>
+                  <span class="item-desc">Visually separate segments</span>
+                </div>
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <!-- 5. ANALYTICS LOG VIEW -->
+        <section id="view-analytics" class="app-view">
+          <!-- Main charts section -->
+          <div class="analytics-charts-grid">
+            <div class="dashboard-card analytics-card">
+              <div class="card-header">
+                <h3>Focus Subject Breakdown</h3>
+                <i data-lucide="pie-chart"></i>
+              </div>
+              <div class="subject-pie-chart-wrapper" id="analytics-subject-breakdown-chart">
+                <!-- Dynamically populated SVG pie chart -->
+              </div>
+            </div>
+            
+            <div class="dashboard-card analytics-card">
+              <div class="card-header">
+                <h3>Daily Study Target Logs (Last 7 Days)</h3>
+                <i data-lucide="calendar"></i>
+              </div>
+              <div class="weekly-milestone-grid" id="analytics-milestones">
+                <!-- Dynamic milestones list -->
+              </div>
+            </div>
+          </div>
+
+          <!-- History Logs List -->
+          <div class="dashboard-card full-width-card">
+            <div class="card-header">
+              <h3>Focus Session Log</h3>
+              <button class="btn btn-secondary btn-sm" id="clear-history-btn">
+                <i data-lucide="trash-2"></i> Clear History
+              </button>
+            </div>
+            <div class="session-history-container">
+              <table class="history-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Task / Topic</th>
+                    <th>Duration</th>
+                    <th>Type</th>
+                    <th>Score</th>
+                  </tr>
+                </thead>
+                <tbody id="history-table-body">
+                  <!-- Log entries added dynamically -->
+                </tbody>
+              </table>
+              <div class="list-placeholder" id="history-placeholder" style="display: none;">
+                No sessions completed yet. Head to the Focus Room to begin!
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 6. SETTINGS VIEW -->
+        <section id="view-settings" class="app-view">
+          <div class="settings-layout">
+            <!-- Settings sub-sidebar tabs -->
+            <div class="settings-sidebar">
+              <button class="settings-tab-btn active" id="btn-settings-profile">
+                <i data-lucide="user"></i>
+                <span>Profile Settings</span>
+              </button>
+              <button class="settings-tab-btn" id="btn-settings-help">
+                <i data-lucide="help-circle"></i>
+                <span>Help & Guides</span>
+              </button>
+            </div>
+
+            <!-- Settings Content Panel -->
+            <div class="settings-content-card">
+              
+              <!-- PROFILE VIEW SUBTAB -->
+              <div class="settings-tab-content" id="settings-profile-content">
+                <div class="settings-section-header">
+                  <h3>Edit Profile Details</h3>
+                  <p>Update your email address or change your account security credentials.</p>
+                </div>
+                
+                <form id="settings-profile-form" class="settings-form">
+                  <div class="form-group">
+                    <label>Username (Primary Identity)</label>
+                    <input type="text" id="settings-username-display" disabled style="opacity: 0.6; cursor: not-allowed; background: var(--bg-primary);">
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="settings-email-input">Email Address</label>
+                    <input type="email" id="settings-email-input" required placeholder="name@example.com">
+                  </div>
+                  
+                  <div class="settings-divider"></div>
+                  
+                  <div class="settings-section-header">
+                    <h4>Study Sessions & Preferences</h4>
+                    <p style="font-size: 11px; color: var(--text-tertiary);">Customize session times and transition behaviors.</p>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 12px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; user-select: none;">
+                      <input type="checkbox" id="settings-auto-start" style="width: 18px; height: 18px; accent-color: #6c5ce7; cursor: pointer;">
+                      <span>Auto-start Breaks & Focus Sessions (Pomodoro Technique)</span>
+                    </label>
+                  </div>
+
+                  <div class="form-row" style="margin-bottom: 16px;">
+                    <div class="form-group flex-1">
+                      <label for="settings-pomo-time">Focus Time (min)</label>
+                      <input type="number" id="settings-pomo-time" min="5" max="60" required style="width: 100%;">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="settings-short-time">Short Break (min)</label>
+                      <input type="number" id="settings-short-time" min="1" max="30" required style="width: 100%;">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="settings-long-time">Long Break (min)</label>
+                      <input type="number" id="settings-long-time" min="5" max="60" required style="width: 100%;">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="settings-daily-goal">Daily Goal (min)</label>
+                      <input type="number" id="settings-daily-goal" min="30" max="480" required style="width: 100%;">
+                    </div>
+                  </div>
+
+                  <div class="settings-divider"></div>
+                  
+                  <div class="settings-section-header">
+                    <h4>Security Credentials</h4>
+                    <p style="font-size: 11px; color: var(--text-tertiary);">Leave new password blank if you do not want to change your credentials.</p>
+                  </div>
+                  
+                  <div class="form-group">
+                    <label for="settings-current-password">Current Password</label>
+                    <input type="password" id="settings-current-password" placeholder="Enter current password to authorize updates" required>
+                  </div>
+                  
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="settings-new-password">New Password</label>
+                      <input type="password" id="settings-new-password" placeholder="Min 6 characters">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="settings-confirm-password">Confirm New Password</label>
+                      <input type="password" id="settings-confirm-password" placeholder="Confirm min 6 characters">
+                    </div>
+                  </div>
+                  
+                  <div class="settings-status-msg success" id="settings-success-msg" style="display: none;">Profile updated successfully!</div>
+                  <div class="settings-status-msg error" id="settings-error-msg" style="display: none;"></div>
+                  
+                  <button type="submit" class="btn btn-primary" style="margin-top: 10px; padding: 12px 24px;">Save Configuration</button>
+                </form>
+              </div>
+
+              <!-- HELP VIEW SUBTAB -->
+              <div class="settings-tab-content" id="settings-help-content" style="display: none;">
+                <div class="settings-section-header">
+                  <h3>StudyFlow Quick Documentation</h3>
+                  <p>Learn how to utilize StudyFlow's premium features to maximize your academic output.</p>
+                </div>
+                
+                <div class="faq-list">
+                  <div class="faq-item">
+                    <div class="faq-question">
+                      <span>How do I bind study sessions to specific tasks?</span>
+                      <i data-lucide="chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                      Head to the **Focus Room** tab. In the right panel, look at the **Bind to Active Task** selector. Choose an active task from the list, and when your Pomodoro countdown finishes, the statistics (like completed Pomodoros tally) will be updated directly to that task on the **Study Planner** board!
+                    </div>
+                  </div>
+
+                  <div class="faq-item">
+                    <div class="faq-question">
+                      <span>What are the commands available in the Notes editor?</span>
+                      <i data-lucide="chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                      Type <kbd>/</kbd> on a new block line to reveal the slash command menu. You can insert headings (H1, H2, H3), lists (Bulleted, Checklists), callouts (for highlights), pre-formatted code syntax blocks, and structural dividers. Pressing <kbd>Enter</kbd> inserts a new text block, and <kbd>Backspace</kbd> on a blank line deletes it.
+                    </div>
+                  </div>
+
+                  <div class="faq-item">
+                    <div class="faq-question">
+                      <span>How are study streaks calculated?</span>
+                      <i data-lucide="chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                      Streaks are calculated based on your daily Pomodoro focus sessions. If you complete at least one focus session today or yesterday, your streak will keep burning! If you go a full day without studying, the streak count resets to 0.
+                    </div>
+                  </div>
+                  
+                  <div class="faq-item">
+                    <div class="faq-question">
+                      <span>Is my data stored securely online?</span>
+                      <i data-lucide="chevron-down"></i>
+                    </div>
+                    <div class="faq-answer">
+                      Currently, StudyFlow is fully client-side. Your accounts, tasks, sessions, and private notes are stored locally in your browser's private `localStorage` database, meaning it is not synced to third-party servers. Passwords are cryptographically hashed using **SHA-256** to prevent plaintext leaks.
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </section>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- Task Creation / Editing Modal Overlay -->
+  <div class="modal-overlay" id="task-modal" style="display: none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="task-modal-title">Create Study Task</h3>
+        <button class="btn-icon close-modal-btn" id="close-task-modal"><i data-lucide="x"></i></button>
+      </div>
+      <form class="modal-form" id="task-modal-form">
+        <input type="hidden" id="task-modal-id">
+        <input type="hidden" id="task-modal-status" value="todo">
+        
+        <div class="form-group">
+          <label for="task-title-input">Task Title</label>
+          <input type="text" id="task-title-input" placeholder="e.g. Solve calculus assignment sheet 4" required autofocus>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="task-subject-input">Subject Tag</label>
+            <input type="text" id="task-subject-input" placeholder="e.g. Maths, Biology, Coding" list="subjects-list">
+            <datalist id="subjects-list">
+              <option value="Mathematics">
+              <option value="Physics">
+              <option value="Chemistry">
+              <option value="Computer Science">
+              <option value="Biology">
+              <option value="Literature">
+            </datalist>
+          </div>
+          
+          <div class="form-group flex-1">
+            <label for="task-priority-input">Priority</label>
+            <select id="task-priority-input">
+              <option value="low">Low Priority</option>
+              <option value="medium" selected>Medium Priority</option>
+              <option value="high">High Priority</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group flex-1">
+            <label for="task-pomos-input">Estimated Pomodoros (25m each)</label>
+            <div class="pomo-spinner">
+              <button type="button" class="spinner-btn" id="pomo-dec"><i data-lucide="minus"></i></button>
+              <input type="number" id="task-pomos-input" min="1" max="10" value="2">
+              <button type="button" class="spinner-btn" id="pomo-inc"><i data-lucide="plus"></i></button>
+            </div>
+          </div>
+          
+          <div class="form-group flex-1">
+            <label for="task-due-input">Due Date</label>
+            <input type="date" id="task-due-input">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary close-modal-btn" id="cancel-task-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-task-btn">Save Task</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Ambient audio HTML elements (Defunct - Synthesized programmatically via Web Audio API)
+  <audio id="audio-rain" loop src="https://assets.mixkit.co/active_storage/sfx/2433/2433-200.wav" preload="auto"></audio>
+  <audio id="audio-cafe" loop src="https://assets.mixkit.co/active_storage/sfx/2447/2447-200.wav" preload="auto"></audio>
+  <audio id="audio-waves" loop src="https://assets.mixkit.co/active_storage/sfx/1188/1188-200.wav" preload="auto"></audio>
+  <audio id="audio-forest" loop src="https://assets.mixkit.co/active_storage/sfx/2568/2568-200.wav" preload="auto"></audio>
+  <audio id="audio-timer-alert" src="https://assets.mixkit.co/active_storage/sfx/911/911-200.wav" preload="auto"></audio>
+  -->
+
+  <!-- Fullscreen Authentication Portal Overlay -->
+  <div class="auth-overlay" id="auth-overlay" style="display: none;">
+    <div class="auth-card">
+      <div class="auth-card-header">
+        <div class="logo">
+          <div class="logo-icon"><i data-lucide="graduation-cap"></i></div>
+          <span class="logo-text">StudyFlow</span>
+        </div>
+        <p class="auth-subtitle">Workspace Portal</p>
+      </div>
+      
+      <div class="auth-tabs">
+        <button class="auth-tab-btn active" id="tab-login-btn">Log In</button>
+        <button class="auth-tab-btn" id="tab-signup-btn">Sign Up</button>
+      </div>
+      
+      <!-- Login Form -->
+      <form class="auth-form" id="login-form">
+        <div class="form-group">
+          <label for="login-username">Username</label>
+          <input type="text" id="login-username" placeholder="Enter username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="login-password">Password</label>
+          <input type="password" id="login-password" placeholder="Enter password" required autocomplete="current-password">
+        </div>
+        <div class="auth-error-msg" id="login-error" style="display: none;"></div>
+        <button type="submit" class="btn btn-primary auth-submit-btn">Access Workspace</button>
+      </form>
+      
+      <!-- Sign Up Form -->
+      <form class="auth-form" id="signup-form" style="display: none;">
+        <div class="form-group">
+          <label for="signup-username">Desired Username</label>
+          <input type="text" id="signup-username" placeholder="Create username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="signup-email">Email Address</label>
+          <input type="email" id="signup-email" placeholder="student@university.edu" required autocomplete="email">
+        </div>
+        <div class="form-group">
+          <label for="signup-password">Password</label>
+          <input type="password" id="signup-password" placeholder="Create password" required autocomplete="new-password">
+        </div>
+        <div class="form-group">
+          <label for="signup-confirm-password">Confirm Password</label>
+          <input type="password" id="signup-confirm-password" placeholder="Re-enter password" required autocomplete="new-password">
+        </div>
+        <div class="auth-error-msg" id="signup-error" style="display: none;"></div>
+        <button type="submit" class="btn btn-primary auth-submit-btn">Create Profile</button>
+      </form>
+
+      <!-- OTP Verification Panel -->
+      <div class="auth-form" id="otp-panel" style="display: none;">
+        <div class="otp-header" style="text-align: center; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Confirm Your Email</h3>
+          <p style="font-size: 12px; color: var(--text-tertiary);">A 6-digit verification code was sent to <strong id="otp-email-display" style="color: var(--text-primary);"></strong></p>
+        </div>
+        
+        <div class="otp-inputs-grid" style="display: flex; gap: 8px; justify-content: center; margin: 16px 0;">
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+        </div>
+        
+        <div class="auth-error-msg" id="otp-error" style="display: none;"></div>
+        <button type="button" class="btn btn-primary auth-submit-btn" id="otp-verify-btn">Verify & Create Account</button>
+        
+        <div class="otp-resend-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-top: 14px; color: var(--text-secondary);">
+          <span>Didn't receive the code?</span>
+          <button type="button" class="otp-resend-btn" id="otp-resend-trigger" disabled style="background: transparent; border: none; color: var(--accent-primary); font-weight: 600; cursor: not-allowed; opacity: 0.6;">Resend in <span id="otp-timer">30</span>s</button>
+        </div>
+        
+        <button type="button" class="btn btn-secondary btn-sm" id="otp-back-btn" style="margin-top: 14px; width: 100%; justify-content: center;">Back to Sign Up</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Simulated Email Toast Notification -->
+  <div class="simulated-email-toast" id="simulated-email-toast" style="display: none;">
+    <div class="toast-icon">
+      <i data-lucide="mail"></i>
+    </div>
+    <div class="toast-body">
+      <div class="toast-sender">📩 StudyFlow Verification Service</div>
+      <div class="toast-subject">Your One-Time Password (OTP) Code</div>
+      <div class="toast-content">
+        Your OTP code is <strong class="toast-otp-code" id="toast-otp-code">849203</strong>. Enter it to complete your profile registration.
+      </div>
+    </div>
+    <button class="toast-close-btn" id="toast-close-trigger"><i data-lucide="x"></i></button>
+  </div>
+
+  <!-- Main JavaScript App module entry -->
+  <script type="module" src="src/js/app.js"></script>
+</body>
+</html>
