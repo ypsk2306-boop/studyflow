@@ -47,14 +47,20 @@ export function initAuth(onAuthSuccess) {
     const passwordInput = document.getElementById('login-password');
     const errorEl = document.getElementById('login-error');
 
-    const result = await loginUser(usernameInput.value, passwordInput.value);
+    try {
+      const result = await loginUser(usernameInput.value, passwordInput.value);
 
-    if (result.success) {
-      handleAuthSuccess();
-      usernameInput.value = '';
-      passwordInput.value = '';
-    } else {
-      errorEl.textContent = result.message || 'Invalid credentials.';
+      if (result.success) {
+        handleAuthSuccess();
+        usernameInput.value = '';
+        passwordInput.value = '';
+      } else {
+        errorEl.textContent = result.message || 'Invalid credentials.';
+        errorEl.style.display = 'block';
+      }
+    } catch (err) {
+      console.error("Login unexpected error:", err);
+      errorEl.textContent = 'An unexpected error occurred during login. Please try again.';
       errorEl.style.display = 'block';
     }
   });
@@ -70,35 +76,41 @@ export function initAuth(onAuthSuccess) {
     const confirmInput = document.getElementById('signup-confirm-password');
     const errorEl = document.getElementById('signup-error');
 
-    if (passwordInput.value.length < 6) {
-      errorEl.textContent = 'Password must be at least 6 characters long.';
+    try {
+      if (passwordInput.value.length < 6) {
+        errorEl.textContent = 'Password must be at least 6 characters long.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (passwordInput.value !== confirmInput.value) {
+        errorEl.textContent = 'Passwords do not match.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      // Cache temporary signup data
+      tempSignupData = {
+        username: usernameInput.value,
+        password: passwordInput.value,
+        email: emailInput.value
+      };
+
+      // Transition to OTP Screen
+      signupForm.style.display = 'none';
+      const otpPanel = document.getElementById('otp-panel');
+      otpPanel.style.display = 'flex';
+      
+      // Set display text
+      document.getElementById('otp-email-display').textContent = tempSignupData.email;
+
+      // Generate & Display OTP
+      triggerOTPGeneration();
+    } catch (err) {
+      console.error("Signup unexpected error:", err);
+      errorEl.textContent = 'An unexpected error occurred. Please try again.';
       errorEl.style.display = 'block';
-      return;
     }
-
-    if (passwordInput.value !== confirmInput.value) {
-      errorEl.textContent = 'Passwords do not match.';
-      errorEl.style.display = 'block';
-      return;
-    }
-
-    // Cache temporary signup data
-    tempSignupData = {
-      username: usernameInput.value,
-      password: passwordInput.value,
-      email: emailInput.value
-    };
-
-    // Transition to OTP Screen
-    signupForm.style.display = 'none';
-    const otpPanel = document.getElementById('otp-panel');
-    otpPanel.style.display = 'flex';
-    
-    // Set display text
-    document.getElementById('otp-email-display').textContent = tempSignupData.email;
-
-    // Generate & Display OTP
-    triggerOTPGeneration();
   });
 
   // Setup OTP Digits Inputs Focus Shifts
@@ -123,30 +135,37 @@ export function initAuth(onAuthSuccess) {
         return;
       }
 
-      if (enteredCode === generatedOTP) {
-        // Complete Signup Registration
-        const result = await registerUser(tempSignupData.username, tempSignupData.password, tempSignupData.email);
-        if (result.success) {
-          // Success cleanup
-          document.getElementById('otp-panel').style.display = 'none';
-          document.getElementById('signup-username').value = '';
-          document.getElementById('signup-email').value = '';
-          document.getElementById('signup-password').value = '';
-          document.getElementById('signup-confirm-password').value = '';
-          clearOTPDigits();
-          hideSimulatedEmailToast();
-          
-          handleAuthSuccess();
+      try {
+        if (enteredCode === generatedOTP) {
+          // Complete Signup Registration
+          const result = await registerUser(tempSignupData.username, tempSignupData.password, tempSignupData.email);
+          if (result.success) {
+            // Success cleanup
+            document.getElementById('otp-panel').style.display = 'none';
+            document.getElementById('signup-username').value = '';
+            document.getElementById('signup-email').value = '';
+            document.getElementById('signup-password').value = '';
+            document.getElementById('signup-confirm-password').value = '';
+            clearOTPDigits();
+            hideSimulatedEmailToast();
+            
+            handleAuthSuccess();
+          } else {
+            errorEl.textContent = result.message || 'Registration failed.';
+            errorEl.style.display = 'block';
+          }
         } else {
-          errorEl.textContent = result.message || 'Registration failed.';
+          errorEl.textContent = 'Incorrect verification code. Please check your simulated email toast.';
           errorEl.style.display = 'block';
         }
-      } else {
-        errorEl.textContent = 'Incorrect verification code. Please check your simulated email toast.';
+      } catch (err) {
+        console.error("Verification unexpected error:", err);
+        errorEl.textContent = 'An unexpected error occurred during registration. Please try again.';
         errorEl.style.display = 'block';
       }
     });
   }
+
 
   // Resend OTP Trigger click
   const resendBtn = document.getElementById('otp-resend-trigger');
