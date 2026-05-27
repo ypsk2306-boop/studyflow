@@ -13,7 +13,8 @@ const DEFAULT_STATE = {
     shortBreakTime: 5,
     longBreakTime: 15,
     dailyGoalMinutes: 120,
-    autoStart: false
+    autoStart: false,
+    ambientSoundEnabled: true
   }
 };
 
@@ -47,7 +48,7 @@ export function loadState() {
       wrapperState.users = wrapperState.users || [];
       
       if (wrapperState.activeUser) {
-        const user = wrapperState.users.find(u => u.username === wrapperState.activeUser);
+        const user = wrapperState.users.find(u => u.username && wrapperState.activeUser && u.username.toLowerCase() === wrapperState.activeUser.toLowerCase());
         if (user) {
           appState = user.state;
           // Fallback merges
@@ -88,16 +89,128 @@ function clearAppState() {
 export function saveState() {
   try {
     if (wrapperState.activeUser) {
-      const user = wrapperState.users.find(u => u.username === wrapperState.activeUser);
+      const user = wrapperState.users.find(u => u.username && wrapperState.activeUser && u.username.toLowerCase() === wrapperState.activeUser.toLowerCase());
       if (user) {
         user.state = appState;
+        user.lastModified = Date.now();
       }
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(wrapperState));
+    syncPushToServer();
   } catch (e) {
     console.error("Failed to write to localStorage", e);
   }
 }
+
+// Push local state to server API endpoint for synchronization
+export async function syncPushToServer() {
+  try {
+    const data = localStorage.getItem(STORAGE_KEY);
+    if (!data) return;
+    await fetch('http://localhost:3000/api/sync', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: data
+    });
+  } catch (e) {
+    // Fail silently if server is offline or unreachable
+  }
+}
+
+// Pull server database state and perform cross-origin data merge
+export async function syncPullAndMerge() {
+  try {
+    const response = await fetch('http://localhost:3000/api/sync');
+    if (!response.ok) return;
+    const serverState = await response.json();
+    if (!serverState || !Array.isArray(serverState.users)) return;
+    
+    const localData = localStorage.getItem(STORAGE_KEY);
+    const localState = localData ? JSON.parse(localData) : { users: [], activeUser: null };
+    localState.users = localState.users || [];
+    
+    const mergedUsers = [];
+    const localUsersMap = new Map(localState.users.map(u => [u.username.toLowerCase(), u]));
+    const serverUsersMap = new Map(serverState.users.map(u => [u.username.toLowerCase(), u]));
+    
+    const allUsernames = new Set([
+      ...localUsersMap.keys(),
+      ...serverUsersMap.keys()
+    ]);
+    
+    let changed = false;
+    let activeUserChanged = false;
+    
+    for (const username of allUsernames) {
+      const localUser = localUsersMap.get(username);
+      const serverUser = serverUsersMap.get(username);
+      
+      if (localUser && serverUser) {
+        const localTime = localUser.lastModified || 0;
+        const serverTime = serverUser.lastModified || 0;
+        
+        if (serverTime > localTime) {
+          mergedUsers.push(serverUser);
+          changed = true;
+        } else {
+          mergedUsers.push(localUser);
+          if (localTime > serverTime) {
+            changed = true;
+          }
+        }
+      } else if (localUser) {
+        mergedUsers.push(localUser);
+        changed = true;
+      } else if (serverUser) {
+        mergedUsers.push(serverUser);
+        changed = true;
+      }
+    }
+    
+    let mergedActiveUser = localState.activeUser;
+    if (!mergedActiveUser && serverState.activeUser) {
+      const activeUserExists = mergedUsers.some(u => u.username.toLowerCase() === serverState.activeUser.toLowerCase());
+      if (activeUserExists) {
+        mergedActiveUser = serverState.activeUser;
+        changed = true;
+        activeUserChanged = true;
+      }
+    }
+    
+    if (changed) {
+      localState.users = mergedUsers;
+      localState.activeUser = mergedActiveUser;
+      
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(localState));
+      
+      // Push merged state back to server
+      await fetch('http://localhost:3000/api/sync', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(localState)
+      });
+      
+      // Reload active state in memory
+      wrapperState = localState;
+      if (wrapperState.activeUser) {
+        const user = wrapperState.users.find(u => u.username && wrapperState.activeUser && u.username.toLowerCase() === wrapperState.activeUser.toLowerCase());
+        if (user) {
+          appState = user.state;
+        }
+      }
+      return { changed: true, activeUserChanged };
+    }
+    return { changed: false, activeUserChanged: false };
+  } catch (e) {
+    // Fail silently if server is offline or unreachable
+    return { changed: false, activeUserChanged: false };
+  }
+}
+
 
 export function getState() {
   return appState;
@@ -109,7 +222,7 @@ export function getActiveUser() {
 
 export function getActiveUserEmail() {
   if (!wrapperState.activeUser) return "";
-  const user = wrapperState.users.find(u => u.username === wrapperState.activeUser);
+  const user = wrapperState.users.find(u => u.username && wrapperState.activeUser && u.username.toLowerCase() === wrapperState.activeUser.toLowerCase());
   return user ? user.email : "";
 }
 
@@ -277,7 +390,8 @@ export async function registerUser(username, password, email) {
     username: cleanName,
     password: hashedPassword,
     email: email.trim(),
-    state: initialUserState
+    state: initialUserState,
+    lastModified: Date.now()
   });
   
   wrapperState.activeUser = cleanName;
@@ -289,6 +403,14 @@ export async function registerUser(username, password, email) {
 
 export async function loginUser(username, password) {
   const cleanName = username.trim();
+  
+  if (wrapperState.users.length === 0) {
+    return { 
+      success: false, 
+      message: 'No registered accounts found in this browser context. Please click the "Sign Up" tab above to create your profile first.' 
+    };
+  }
+
   const user = wrapperState.users.find(u => u.username.toLowerCase() === cleanName.toLowerCase());
   
   if (!user) {
@@ -301,7 +423,7 @@ export async function loginUser(username, password) {
   const isHashed = /^[a-f0-9]{64}$/i.test(user.password);
   
   if (isHashed) {
-    if (user.password !== hashedPassword) {
+    if (user.password.toLowerCase() !== hashedPassword.toLowerCase()) {
       return { success: false, message: 'Invalid username or password.' };
     }
   } else {
@@ -328,32 +450,15 @@ export function logoutUser() {
   saveState();
 }
 
-export async function updateActiveUserProfile(email, oldPassword, newPassword) {
+export async function updateActiveUserProfile(email) {
   const activeUser = wrapperState.activeUser;
   if (!activeUser) {
     return { success: false, message: 'No active session found.' };
   }
 
-  const user = wrapperState.users.find(u => u.username === activeUser);
+  const user = wrapperState.users.find(u => u.username && activeUser && u.username.toLowerCase() === activeUser.toLowerCase());
   if (!user) {
     return { success: false, message: 'User profile not found.' };
-  }
-
-  // Validate old password
-  const hashedOld = await hashPassword(oldPassword);
-  const isHashed = /^[a-f0-9]{64}$/i.test(user.password);
-  const matches = isHashed ? (user.password === hashedOld) : (user.password === oldPassword);
-  
-  if (!matches) {
-    return { success: false, message: 'Incorrect current password.' };
-  }
-
-  // If changing password, check complexity and hash it
-  if (newPassword && newPassword.trim() !== '') {
-    if (newPassword.length < 6) {
-      return { success: false, message: 'New password must be at least 6 characters long.' };
-    }
-    user.password = await hashPassword(newPassword);
   }
 
   // Update email

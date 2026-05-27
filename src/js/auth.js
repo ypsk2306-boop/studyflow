@@ -19,6 +19,17 @@ export function initAuth(onAuthSuccess) {
   
   if (!tabLogin || !tabSignup || !loginForm || !signupForm) return;
 
+  // Check if localStorage is available
+  if (!isLocalStorageAvailable()) {
+    const warningEl = document.getElementById('auth-storage-warning');
+    if (warningEl) {
+      warningEl.style.display = 'block';
+      if (window.lucide) {
+        window.lucide.createIcons();
+      }
+    }
+  }
+
   // Tabs Switching
   tabLogin.addEventListener('click', () => {
     tabLogin.classList.add('active');
@@ -65,8 +76,8 @@ export function initAuth(onAuthSuccess) {
     }
   });
 
-  // Signup Submit (Triggers OTP Step)
-  signupForm.addEventListener('submit', (e) => {
+  // Signup Submit (Direct signup, bypass OTP)
+  signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideErrors();
 
@@ -89,23 +100,19 @@ export function initAuth(onAuthSuccess) {
         return;
       }
 
-      // Cache temporary signup data
-      tempSignupData = {
-        username: usernameInput.value,
-        password: passwordInput.value,
-        email: emailInput.value
-      };
-
-      // Transition to OTP Screen
-      signupForm.style.display = 'none';
-      const otpPanel = document.getElementById('otp-panel');
-      otpPanel.style.display = 'flex';
-      
-      // Set display text
-      document.getElementById('otp-email-display').textContent = tempSignupData.email;
-
-      // Generate & Display OTP
-      triggerOTPGeneration();
+      const result = await registerUser(usernameInput.value, passwordInput.value, emailInput.value);
+      if (result.success) {
+        // Clear inputs
+        usernameInput.value = '';
+        emailInput.value = '';
+        passwordInput.value = '';
+        confirmInput.value = '';
+        
+        handleAuthSuccess();
+      } else {
+        errorEl.textContent = result.message || 'Registration failed.';
+        errorEl.style.display = 'block';
+      }
     } catch (err) {
       console.error("Signup unexpected error:", err);
       errorEl.textContent = 'An unexpected error occurred. Please try again.';
@@ -382,4 +389,15 @@ function hideErrors() {
   if (loginErr) loginErr.style.display = 'none';
   if (signupErr) signupErr.style.display = 'none';
   if (otpErr) otpErr.style.display = 'none';
+}
+
+function isLocalStorageAvailable() {
+  try {
+    const testKey = '__test_store_avail__';
+    localStorage.setItem(testKey, '1');
+    localStorage.removeItem(testKey);
+    return true;
+  } catch (e) {
+    return false;
+  }
 }

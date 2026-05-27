@@ -1,5 +1,5 @@
 // Application entry point for StudyFlow
-import { loadState, getState } from './state.js';
+import { loadState, getState, syncPullAndMerge, getActiveUser } from './state.js';
 import { initRouter, registerRoute, switchTab } from './router.js';
 import { renderDashboard } from './dashboard.js';
 import { initPlanner, renderPlanner, openTaskModal } from './planner.js';
@@ -29,6 +29,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initSettings();
   initHeaderActions();
   initRouter();
+  initBackups();
 
   // 4. Initialize Authentication overlay and handlers
   initAuth(onAuthSuccess);
@@ -36,7 +37,18 @@ window.addEventListener('DOMContentLoaded', () => {
   // 5. Run authentication verification check
   checkAuth(onAuthSuccess, null);
 
-  // 6. Initial icons render
+  // 6. Run cross-origin automatic sync pull in the background
+  syncPullAndMerge().then((result) => {
+    if (result && result.changed) {
+      if (result.activeUserChanged) {
+        checkAuth(onAuthSuccess, null);
+      } else if (getActiveUser()) {
+        onAuthSuccess();
+      }
+    }
+  });
+
+  // 7. Initial icons render
   lucide.createIcons({ attrs: { class: 'lucide-icon' } });
 });
 
@@ -107,4 +119,73 @@ function initHeaderActions() {
       }
     });
   });
+}
+
+function initBackups() {
+  const exportBtnAuth = document.getElementById('auth-backup-export');
+  const importTriggerAuth = document.getElementById('auth-backup-import-trigger');
+  const fileInputAuth = document.getElementById('auth-backup-file-input');
+
+  const exportBtnSettings = document.getElementById('settings-backup-export');
+  const importTriggerSettings = document.getElementById('settings-backup-import-trigger');
+  const fileInputSettings = document.getElementById('settings-backup-file-input');
+
+  const handleExport = () => {
+    try {
+      const data = localStorage.getItem('studyflow_app_state_multiuser');
+      const backupData = data ? JSON.parse(data) : { users: [], activeUser: null };
+      
+      const json = JSON.stringify(backupData, null, 2);
+      const blob = new Blob([json], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      
+      const a = document.createElement('a');
+      const dateStr = new Date().toISOString().split('T')[0];
+      a.href = url;
+      a.download = `studyflow_backup_${dateStr}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch (e) {
+      alert("Failed to export backup: " + e.message);
+    }
+  };
+
+  const handleImport = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target.result;
+        const backupData = JSON.parse(text);
+        
+        if (backupData && (backupData.users !== undefined || backupData.activeUser !== undefined)) {
+          localStorage.setItem('studyflow_app_state_multiuser', JSON.stringify(backupData));
+          alert("Database restored successfully! The page will now reload.");
+          window.location.reload();
+        } else {
+          alert("Invalid backup file format. Please upload a valid StudyFlow backup JSON file.");
+        }
+      } catch (err) {
+        alert("Failed to parse backup file: " + err.message);
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  if (exportBtnAuth) exportBtnAuth.addEventListener('click', handleExport);
+  if (exportBtnSettings) exportBtnSettings.addEventListener('click', handleExport);
+
+  if (importTriggerAuth && fileInputAuth) {
+    importTriggerAuth.addEventListener('click', () => fileInputAuth.click());
+    fileInputAuth.addEventListener('change', handleImport);
+  }
+
+  if (importTriggerSettings && fileInputSettings) {
+    importTriggerSettings.addEventListener('click', () => fileInputSettings.click());
+    fileInputSettings.addEventListener('change', handleImport);
+  }
 }

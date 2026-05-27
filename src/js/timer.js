@@ -488,6 +488,32 @@ export function initTimer() {
 export function renderTimer() {
   populateTaskBinder();
   updateSessionTally();
+
+  // Hide or show Ambient Sound Mixer based on user preferences
+  const state = getState();
+  const settings = state.settings || {};
+  const ambientCard = document.getElementById('focus-ambient-sound-card');
+  if (ambientCard) {
+    if (settings.ambientSoundEnabled === false) {
+      ambientCard.style.display = 'none';
+      // Stop all ambient channels if they are currently playing
+      Object.keys(audios).forEach(key => {
+        if (audios[key] && key !== 'alert') {
+          audios[key].pause();
+          
+          // Reset slider UI representations and playing states
+          const channel = document.querySelector(`.sound-channel[data-sound="${key}"]`);
+          if (channel) {
+            channel.classList.remove('playing');
+            const slider = channel.querySelector('.sound-volume-slider');
+            if (slider) slider.value = 0;
+          }
+        }
+      });
+    } else {
+      ambientCard.style.display = 'block';
+    }
+  }
 }
 
 function populateTaskBinder() {
@@ -583,12 +609,16 @@ function startTimer() {
     AmbientSoundEngine.getContext().resume();
   } catch(e) {}
 
-  // Start sound mixer channels playing if their volume is set
-  Object.keys(audios).forEach(key => {
-    if (audios[key] && key !== 'alert' && audios[key].volume > 0) {
-      audios[key].play().catch(e => console.log("Audio block:", e));
-    }
-  });
+  // Start sound mixer channels playing if their volume is set and enabled
+  const state = getState();
+  const settings = state.settings || {};
+  if (settings.ambientSoundEnabled !== false) {
+    Object.keys(audios).forEach(key => {
+      if (audios[key] && key !== 'alert' && audios[key].volume > 0) {
+        audios[key].play().catch(e => console.log("Audio block:", e));
+      }
+    });
+  }
 
   // Ticking Interval
   const targetTime = Date.now() + timeLeft * 1000;

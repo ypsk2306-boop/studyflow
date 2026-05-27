@@ -62,58 +62,44 @@ export function initSettings() {
       errorEl.style.display = 'none';
 
       const emailVal = document.getElementById('settings-email-input').value;
-      const currentPassword = document.getElementById('settings-current-password').value;
-      const newPassword = document.getElementById('settings-new-password').value;
-      const confirmPassword = document.getElementById('settings-confirm-password').value;
 
-      // New Password matches validation
-      if (newPassword && newPassword.trim() !== '') {
-        if (newPassword.length < 6) {
-          errorEl.textContent = 'New password must be at least 6 characters long.';
-          errorEl.style.display = 'block';
-          return;
-        }
-        if (newPassword !== confirmPassword) {
-          errorEl.textContent = 'New passwords do not match.';
+      // Determine what is being updated
+      const currentEmail = getActiveUserEmail();
+      const isEmailChanged = (emailVal.trim() !== currentEmail.trim());
+
+      if (isEmailChanged) {
+        // Update Profile state
+        const result = await updateActiveUserProfile(emailVal);
+        if (!result.success) {
+          errorEl.textContent = result.message || 'Failed to update profile details.';
           errorEl.style.display = 'block';
           return;
         }
       }
 
-      // Update Profile state
-      const result = await updateActiveUserProfile(emailVal, currentPassword, newPassword);
+      // Save Preferences settings (this runs either after successful profile update or when only settings changed)
+      const autoStartVal = document.getElementById('settings-auto-start').checked;
+      const ambientEnabledVal = document.getElementById('settings-ambient-enabled').checked;
+      const pomoTimeVal = parseInt(document.getElementById('settings-pomo-time').value) || 25;
+      const shortTimeVal = parseInt(document.getElementById('settings-short-time').value) || 5;
+      const longTimeVal = parseInt(document.getElementById('settings-long-time').value) || 15;
+      const dailyGoalVal = parseInt(document.getElementById('settings-daily-goal').value) || 120;
 
-      if (result.success) {
-        // Save Preferences settings
-        const autoStartVal = document.getElementById('settings-auto-start').checked;
-        const pomoTimeVal = parseInt(document.getElementById('settings-pomo-time').value) || 25;
-        const shortTimeVal = parseInt(document.getElementById('settings-short-time').value) || 5;
-        const longTimeVal = parseInt(document.getElementById('settings-long-time').value) || 15;
-        const dailyGoalVal = parseInt(document.getElementById('settings-daily-goal').value) || 120;
+      updateActiveUserSettings({
+        autoStart: autoStartVal,
+        ambientSoundEnabled: ambientEnabledVal,
+        pomodoroTime: pomoTimeVal,
+        shortBreakTime: shortTimeVal,
+        longBreakTime: longTimeVal,
+        dailyGoalMinutes: dailyGoalVal
+      });
 
-        updateActiveUserSettings({
-          autoStart: autoStartVal,
-          pomodoroTime: pomoTimeVal,
-          shortBreakTime: shortTimeVal,
-          longBreakTime: longTimeVal,
-          dailyGoalMinutes: dailyGoalVal
-        });
-
-        successEl.style.display = 'block';
-        
-        // Auto-hide success banner
-        setTimeout(() => {
-          successEl.style.display = 'none';
-        }, 4000);
-
-        // Clear password forms
-        document.getElementById('settings-current-password').value = '';
-        document.getElementById('settings-new-password').value = '';
-        document.getElementById('settings-confirm-password').value = '';
-      } else {
-        errorEl.textContent = result.message || 'Failed to update profile details.';
-        errorEl.style.display = 'block';
-      }
+      successEl.style.display = 'block';
+      
+      // Auto-hide success banner
+      setTimeout(() => {
+        successEl.style.display = 'none';
+      }, 4000);
     });
   }
 }
@@ -132,12 +118,14 @@ export function renderSettings() {
 
   // Load preferences inputs
   const autoStartInput = document.getElementById('settings-auto-start');
+  const ambientEnabledInput = document.getElementById('settings-ambient-enabled');
   const pomoInput = document.getElementById('settings-pomo-time');
   const shortInput = document.getElementById('settings-short-time');
   const longInput = document.getElementById('settings-long-time');
   const goalInput = document.getElementById('settings-daily-goal');
 
   if (autoStartInput) autoStartInput.checked = !!settings.autoStart;
+  if (ambientEnabledInput) ambientEnabledInput.checked = settings.ambientSoundEnabled !== false;
   if (pomoInput) pomoInput.value = settings.pomodoroTime || 25;
   if (shortInput) shortInput.value = settings.shortBreakTime || 5;
   if (longInput) longInput.value = settings.longBreakTime || 15;

@@ -17,6 +17,20 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <!-- Test Results Banner -->
+  <div id="test-results-panel" style="position: fixed; top: 0; left: 0; right: 0; background: #000; color: #fff; z-index: 99999; padding: 20px; max-height: 50vh; overflow-y: auto; border-bottom: 2px solid var(--accent-primary);">
+    <h2 style="margin: 0 0 10px 0; font-size: 18px; display: flex; justify-content: space-between;">
+      <span>Casing & Uppercase Hash Integration Tests</span>
+      <span id="test-badge" class="running" style="padding: 2px 8px; border-radius: 4px; font-size: 14px;">RUNNING</span>
+    </h2>
+    <div id="test-results-log"></div>
+  </div>
+
+  <style>
+    #test-badge.running { background: #f39c12; color: #fff; }
+    #test-badge.passed { background: #2ecc71; color: #fff; }
+    #test-badge.failed { background: #e74c3c; color: #fff; }
+  </style>
 
   <!-- Background decorative blur shapes -->
   <div class="blobblob blob-1"></div>
@@ -655,23 +669,27 @@
                   </div>
 
                   <div class="settings-divider"></div>
-
+                  
                   <div class="settings-section-header">
-                    <h4>Backup & Recovery</h4>
-                    <p style="font-size: 11px; color: var(--text-tertiary);">Export your accounts, notes, and study logs, or restore a previous backup.</p>
+                    <h4>Security Credentials</h4>
+                    <p style="font-size: 11px; color: var(--text-tertiary);">Leave new password blank if you do not want to change your credentials.</p>
                   </div>
-
-                  <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    <button type="button" class="btn btn-secondary" id="settings-backup-export" style="padding: 10px 16px; display: flex; align-items: center; gap: 6px;">
-                      <i data-lucide="download"></i> Export Database Backup
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="settings-backup-import-trigger" style="padding: 10px 16px; display: flex; align-items: center; gap: 6px;">
-                      <i data-lucide="upload"></i> Import Database Backup
-                    </button>
-                    <input type="file" id="settings-backup-file-input" accept=".json" style="display: none;">
+                  
+                  <div class="form-group">
+                    <label for="settings-current-password">Current Password</label>
+                    <input type="password" id="settings-current-password" placeholder="Enter current password to authorize updates">
                   </div>
-
-
+                  
+                  <div class="form-row">
+                    <div class="form-group flex-1">
+                      <label for="settings-new-password">New Password</label>
+                      <input type="password" id="settings-new-password" placeholder="Min 6 characters">
+                    </div>
+                    <div class="form-group flex-1">
+                      <label for="settings-confirm-password">Confirm New Password</label>
+                      <input type="password" id="settings-confirm-password" placeholder="Confirm min 6 characters">
+                    </div>
+                  </div>
                   
                   <div class="settings-status-msg success" id="settings-success-msg" style="display: none;">Profile updated successfully!</div>
                   <div class="settings-status-msg error" id="settings-error-msg" style="display: none;"></div>
@@ -809,6 +827,7 @@
   <audio id="audio-forest" loop src="https://assets.mixkit.co/active_storage/sfx/2568/2568-200.wav" preload="auto"></audio>
   <audio id="audio-timer-alert" src="https://assets.mixkit.co/active_storage/sfx/911/911-200.wav" preload="auto"></audio>
   -->
+
   <!-- Fullscreen Authentication Portal Overlay -->
   <div class="auth-overlay" id="auth-overlay" style="display: none;">
     <div class="auth-card">
@@ -818,6 +837,12 @@
           <span class="logo-text">StudyFlow</span>
         </div>
         <p class="auth-subtitle">Workspace Portal</p>
+      </div>
+      
+      <!-- Storage Availability Warning -->
+      <div class="auth-storage-warning" id="auth-storage-warning" style="display: none; background: rgba(239, 68, 68, 0.15); color: #ff7675; border: 1px solid rgba(239, 68, 68, 0.3); padding: 12px; border-radius: var(--radius-md); font-size: 12px; margin: 10px 0; text-align: center; font-family: var(--font-sans); line-height: 1.4;">
+        <i data-lucide="alert-triangle" style="width: 16px; height: 16px; vertical-align: middle; margin-right: 6px; display: inline-block;"></i>
+        <span>Browser storage is blocked or full. Your accounts and study progress will not persist!</span>
       </div>
       
       <div class="auth-tabs">
@@ -860,6 +885,33 @@
         <div class="auth-error-msg" id="signup-error" style="display: none;"></div>
         <button type="submit" class="btn btn-primary auth-submit-btn">Create Profile</button>
       </form>
+
+      <!-- OTP Verification Panel -->
+      <div class="auth-form" id="otp-panel" style="display: none;">
+        <div class="otp-header" style="text-align: center; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Confirm Your Email</h3>
+          <p style="font-size: 12px; color: var(--text-tertiary);">A 6-digit verification code was sent to <strong id="otp-email-display" style="color: var(--text-primary);"></strong></p>
+        </div>
+        
+        <div class="otp-inputs-grid" style="display: flex; gap: 8px; justify-content: center; margin: 16px 0;">
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+          <input type="text" class="otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required>
+        </div>
+        
+        <div class="auth-error-msg" id="otp-error" style="display: none;"></div>
+        <button type="button" class="btn btn-primary auth-submit-btn" id="otp-verify-btn">Verify & Create Account</button>
+        
+        <div class="otp-resend-row" style="display: flex; justify-content: space-between; align-items: center; font-size: 12px; margin-top: 14px; color: var(--text-secondary);">
+          <span>Didn't receive the code?</span>
+          <button type="button" class="otp-resend-btn" id="otp-resend-trigger" disabled style="background: transparent; border: none; color: var(--accent-primary); font-weight: 600; cursor: not-allowed; opacity: 0.6;">Resend in <span id="otp-timer">30</span>s</button>
+        </div>
+        
+        <button type="button" class="btn btn-secondary btn-sm" id="otp-back-btn" style="margin-top: 14px; width: 100%; justify-content: center;">Back to Sign Up</button>
+      </div>
     </div>
   </div>
 
@@ -880,5 +932,7 @@
 
   <!-- Main JavaScript App module entry -->
   <script type="module" src="src/js/app.js"></script>
+  <!-- Automated test script -->
+  <script type="module" src="test_casing.js"></script>
 </body>
 </html>
