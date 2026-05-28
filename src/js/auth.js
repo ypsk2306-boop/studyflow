@@ -42,6 +42,11 @@ export function initAuth(onAuthSuccess) {
     const resetPanel = document.getElementById('reset-password-panel');
     if (forgotForm) forgotForm.style.display = 'none';
     if (resetPanel) resetPanel.style.display = 'none';
+    
+    // Explicitly make sure the options row is visible on login tab active
+    const optionsRow = document.querySelector('.login-options-row');
+    if (optionsRow) optionsRow.style.display = 'flex';
+    
     hideErrors();
   });
 
@@ -599,6 +604,10 @@ function showAuthOverlay() {
   if (overlay) {
     overlay.style.display = 'flex';
     overlay.style.opacity = 1;
+  }
+  const authTabs = document.querySelector('.auth-tabs');
+  if (authTabs) {
+    authTabs.style.display = 'flex';
   }
   const tabLogin = document.getElementById('tab-login-btn');
   if (tabLogin) tabLogin.click();
