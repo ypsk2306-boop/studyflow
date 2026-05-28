@@ -193,7 +193,7 @@
             </div>
           </div>
 
-          <!-- Bottom Grid: Quick notes & Tasks -->
+          <!-- Bottom Grid: Quick notes, Tasks, & FlowAI Assistant -->
           <div class="dashboard-details-grid">
             <!-- Tasks widget -->
             <div class="dashboard-card">
@@ -218,6 +218,45 @@
                 <div class="list-placeholder">No notebook pages found. Create notes in Notes tab!</div>
               </div>
             </div>
+          </div>
+
+          <!-- FlowAI Assistant widget -->
+          <div class="dashboard-card ai-assistant-widget" style="display: flex; flex-direction: column; height: 320px; overflow: hidden;">
+            <div class="card-header" style="padding-bottom: 8px;">
+              <div style="display: flex; align-items: center; gap: 8px;">
+                <i data-lucide="sparkles" style="color: var(--accent-primary); width: 18px; height: 18px;"></i>
+                <h3>FlowAI Assistant</h3>
+              </div>
+              <span class="auto-save-tag" style="color: var(--accent-secondary);"><i data-lucide="zap" style="width: 10px; height: 10px;"></i> Online</span>
+            </div>
+            
+            <!-- Chat Messages Panel -->
+            <div class="chat-messages-container" id="ai-chat-messages" style="flex: 1; overflow-y: auto; padding: 10px; display: flex; flex-direction: column; gap: 8px; font-size: 13px; line-height: 1.4;">
+              <div class="chat-message ai" style="align-self: flex-start; background: var(--bg-tertiary); padding: 8px 12px; border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 0; border: 1px solid var(--border-color); max-width: 85%; color: var(--text-secondary);">
+                Hey! I'm FlowAI, your personal study assistant. Ask me to:
+                <div style="margin-top: 6px; display: flex; flex-wrap: wrap; gap: 6px;">
+                  <button type="button" class="ai-chip-btn" data-action="plan" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 12px; padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: var(--transition-smooth);"><i data-lucide="calendar" style="width: 10px; height: 10px;"></i> Plan study</button>
+                  <button type="button" class="ai-chip-btn" data-action="breakdown" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 12px; padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: var(--transition-smooth);"><i data-lucide="split" style="width: 10px; height: 10px;"></i> Break down tasks</button>
+                  <button type="button" class="ai-chip-btn" data-action="tips" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 12px; padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: var(--transition-smooth);"><i data-lucide="lightbulb" style="width: 10px; height: 10px;"></i> Focus tips</button>
+                  <button type="button" class="ai-chip-btn" data-action="audit" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 12px; padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: var(--transition-smooth);"><i data-lucide="activity" style="width: 10px; height: 10px;"></i> Productivity Audit</button>
+                  <button type="button" class="ai-chip-btn" data-action="quiz" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 12px; padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: var(--transition-smooth);"><i data-lucide="help-circle" style="width: 10px; height: 10px;"></i> Quick Quiz</button>
+                  <button type="button" class="ai-chip-btn" data-action="draft" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); border-radius: 12px; padding: 4px 10px; font-size: 11px; font-weight: 500; cursor: pointer; display: flex; align-items: center; gap: 4px; transition: var(--transition-smooth);"><i data-lucide="file-text" style="width: 10px; height: 10px;"></i> Draft Study Note</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Typing Indicator (hidden by default) -->
+            <div class="chat-typing-indicator" id="ai-typing-indicator" style="display: none; align-self: flex-start; padding: 8px 12px; background: var(--bg-tertiary); border: 1px solid var(--border-color); border-radius: var(--radius-md) var(--radius-md) var(--radius-md) 0; margin-left: 10px; margin-bottom: 8px; font-size: 12px; color: var(--text-tertiary);">
+              FlowAI is thinking...
+            </div>
+
+            <!-- Chat Input Box -->
+            <form class="chat-input-wrapper" id="ai-chat-form" style="border-top: 1px solid var(--border-color); padding: 8px; display: flex; gap: 8px; background: rgba(0,0,0,0.1);">
+              <input type="text" id="ai-chat-input" placeholder="Ask FlowAI anything..." style="flex: 1; background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 8px 12px; color: var(--text-primary); font-size: 13px; outline: none; font-family: var(--font-sans);" required autocomplete="off">
+              <button type="submit" class="btn btn-primary" style="padding: 0 12px; display: flex; align-items: center; justify-content: center; height: 34px; width: 34px; min-width: auto; border-radius: var(--radius-md); flex-shrink: 0;" title="Send Message">
+                <i data-lucide="send" style="width: 14px; height: 14px;"></i>
+              </button>
+            </form>
           </div>
         </section>
 
@@ -385,7 +424,7 @@
           </div>
         </section>
 
-        <!-- 4. NOTION-LIKE NOTES WORKSPACE -->
+        <!-- 4. NOTES WORKSPACE -->
         <section id="view-notes" class="app-view">
           <div class="notes-workspace-layout">
             <!-- Notes Sub-Sidebar (Pages list) -->
@@ -401,7 +440,7 @@
               </div>
             </div>
 
-            <!-- Main Notion-like block editor -->
+            <!-- Main block editor -->
             <div class="notes-editor-container">
               <div class="notes-editor-empty-state" id="editor-empty-state">
                 <i data-lucide="book-open"></i>
@@ -433,7 +472,7 @@
                   <input type="text" id="editor-page-title" placeholder="Untitled Page">
                 </div>
 
-                <!-- Notion Blocks Container -->
+                <!-- Blocks Container -->
                 <div class="editor-blocks-workspace" id="editor-blocks-container">
                   <!-- Blocks will be populated dynamically -->
                 </div>
@@ -578,6 +617,10 @@
                 <i data-lucide="help-circle"></i>
                 <span>Help & Guides</span>
               </button>
+              <button class="settings-tab-btn" id="btn-settings-about">
+                <i data-lucide="info"></i>
+                <span>About the App</span>
+              </button>
             </div>
 
             <!-- Settings Content Panel -->
@@ -654,22 +697,7 @@
                     </label>
                   </div>
 
-                  <div class="settings-divider"></div>
 
-                  <div class="settings-section-header">
-                    <h4>Backup & Recovery</h4>
-                    <p style="font-size: 11px; color: var(--text-tertiary);">Export your accounts, notes, and study logs, or restore a previous backup.</p>
-                  </div>
-
-                  <div style="display: flex; gap: 12px; margin-bottom: 20px;">
-                    <button type="button" class="btn btn-secondary" id="settings-backup-export" style="padding: 10px 16px; display: flex; align-items: center; gap: 6px;">
-                      <i data-lucide="download"></i> Export Database Backup
-                    </button>
-                    <button type="button" class="btn btn-secondary" id="settings-backup-import-trigger" style="padding: 10px 16px; display: flex; align-items: center; gap: 6px;">
-                      <i data-lucide="upload"></i> Import Database Backup
-                    </button>
-                    <input type="file" id="settings-backup-file-input" accept=".json" style="display: none;">
-                  </div>
 
 
                   
@@ -730,11 +758,120 @@
                 </div>
               </div>
 
+              <!-- ABOUT VIEW SUBTAB -->
+              <div class="settings-tab-content" id="settings-about-content" style="display: none;">
+                <div class="settings-section-header">
+                  <h3>About StudyFlow Workspace</h3>
+                  <p>Learn more about StudyFlow's key features, design, and architecture.</p>
+                </div>
+                
+                <div class="about-container" style="font-family: var(--font-sans); color: var(--text-primary);">
+                  
+                  <!-- Hero Glassmorphism Card -->
+                  <div class="dashboard-card" style="padding: 24px; margin-bottom: 24px; text-align: center; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-lg); position: relative; overflow: hidden; box-shadow: var(--shadow-md);">
+                    <div style="font-size: 40px; margin-bottom: 12px; color: var(--accent-primary);">
+                      <i data-lucide="graduation-cap" style="width: 48px; height: 48px;"></i>
+                    </div>
+                    <h2 style="font-size: 24px; font-weight: 700; background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 8px;">StudyFlow Workspace</h2>
+                    <p style="font-size: 14px; color: var(--text-secondary); line-height: 1.6; max-width: 600px; margin: 0 auto;">
+                      StudyFlow is a premium study companion designed to empower students to build disciplined habits, organize coursework, and maximize focus. Combining task planning, deep work timers, ambient soundtracks, and beautiful analytics, StudyFlow provides a cohesive local workstation for your academic success.
+                    </p>
+                  </div>
+
+                  <!-- Features Grid -->
+                  <h4 style="font-size: 16px; font-weight: 600; margin-bottom: 12px; color: var(--text-primary);">Core Workspace Features</h4>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; margin-bottom: 24px;">
+                    
+                    <!-- Planner -->
+                    <div class="dashboard-card" style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); display: flex; gap: 12px; align-items: flex-start;">
+                      <div style="padding: 8px; background: rgba(var(--accent-primary-rgb), 0.1); border-radius: var(--radius-sm); color: var(--accent-primary); flex-shrink: 0;">
+                        <i data-lucide="check-square" style="width: 20px; height: 20px;"></i>
+                      </div>
+                      <div>
+                        <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); margin-top: 0;">Study Planner & Kanban</h5>
+                        <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.5; margin: 0;">
+                          Organize your assignments and study topics using a flexible board. Assign priority tags, estimated Pomodoros, and drag-and-drop tasks across workflow columns.
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Focus Timer -->
+                    <div class="dashboard-card" style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); display: flex; gap: 12px; align-items: flex-start;">
+                      <div style="padding: 8px; background: rgba(var(--accent-primary-rgb), 0.1); border-radius: var(--radius-sm); color: var(--accent-primary); flex-shrink: 0;">
+                        <i data-lucide="timer" style="width: 20px; height: 20px;"></i>
+                      </div>
+                      <div>
+                        <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); margin-top: 0;">Focus Room & Ambient Mixer</h5>
+                        <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.5; margin: 0;">
+                          Dive into deep work with a Pomodoro timer backed by breathing animations. Customize your focus experience using a custom ambient mixer featuring Rain, Parisian Cafe, Binaural Waves, and Forest soundtracks.
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Block Notes -->
+                    <div class="dashboard-card" style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); display: flex; gap: 12px; align-items: flex-start;">
+                      <div style="padding: 8px; background: rgba(var(--accent-primary-rgb), 0.1); border-radius: var(--radius-sm); color: var(--accent-primary); flex-shrink: 0;">
+                        <i data-lucide="book-open" style="width: 20px; height: 20px;"></i>
+                      </div>
+                      <div>
+                        <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); margin-top: 0;">Block Notes Workspace</h5>
+                        <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.5; margin: 0;">
+                          Compose your study notes with a rich text editor supporting block commands. Type <kbd>/</kbd> to insert headings, lists, checkbox tasks, info callouts, code syntax boxes, and dividers.
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Analytics -->
+                    <div class="dashboard-card" style="padding: 16px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); display: flex; gap: 12px; align-items: flex-start;">
+                      <div style="padding: 8px; background: rgba(var(--accent-primary-rgb), 0.1); border-radius: var(--radius-sm); color: var(--accent-primary); flex-shrink: 0;">
+                        <i data-lucide="bar-chart-2" style="width: 20px; height: 20px;"></i>
+                      </div>
+                      <div>
+                        <h5 style="font-size: 14px; font-weight: 600; margin-bottom: 4px; color: var(--text-primary); margin-top: 0;">Productivity Analytics</h5>
+                        <p style="font-size: 12px; color: var(--text-tertiary); line-height: 1.5; margin: 0;">
+                          Visualize your focus progress. StudyFlow tracks your focus streaks, logs your daily study achievements, and plots subject breakdowns and weekly distributions using native SVG charts.
+                        </p>
+                      </div>
+                    </div>
+
+                  </div>
+
+                  <!-- Tech Stack & Design Architecture -->
+                  <div class="dashboard-card" style="padding: 20px; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--radius-md); margin-bottom: 24px;">
+                    <h4 style="font-size: 15px; font-weight: 600; margin-bottom: 10px; color: var(--text-primary); display: flex; align-items: center; gap: 8px; margin-top: 0;">
+                      <i data-lucide="cpu" style="width: 18px; height: 18px; color: var(--accent-primary);"></i> Technology Stack & Architecture
+                    </h4>
+                    <p style="font-size: 12px; color: var(--text-secondary); line-height: 1.6; margin-bottom: 12px;">
+                      StudyFlow is engineered using fully client-side technologies to guarantee offline performance, data security, and instant response times:
+                    </p>
+                    <ul style="list-style: none; padding: 0; display: flex; flex-direction: column; gap: 8px; font-size: 12px; color: var(--text-tertiary); margin: 0;">
+                      <li style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                        <strong>Structure & Style</strong>: Semantic HTML5 and CSS variables with full themes support (Dark, Light, Cozy Sepia).
+                      </li>
+                      <li style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                        <strong>Application Logic</strong>: Vanilla ESM Javascript modules for component state management, router, and UI synchronization.
+                      </li>
+                      <li style="display: flex; align-items: center; gap: 8px;">
+                        <span style="width: 5px; height: 5px; background: var(--accent-primary); border-radius: 50%;"></span>
+                        <strong>Local Database</strong>: Multi-profile browser local storage integration with cryptographically hashed passwords (SHA-256).
+                      </li>
+                    </ul>
+                  </div>
+
+                  <!-- Version & License Footer -->
+                  <div style="display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: var(--text-tertiary); padding: 8px 0; border-top: 1px solid var(--border-color);">
+                    <span>Version 1.0.0 (Stable Release)</span>
+                    <span>Released under MIT License</span>
+                  </div>
+
+                </div>
+              </div>
+
             </div>
           </div>
         </section>
-
-      </div>
     </main>
   </div>
 

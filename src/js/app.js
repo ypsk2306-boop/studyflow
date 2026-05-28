@@ -8,6 +8,7 @@ import { initNotes, renderNotes } from './notes.js';
 import { initAnalytics, renderAnalytics } from './analytics.js';
 import { initSettings, renderSettings } from './settings.js';
 import { initAuth, checkAuth } from './auth.js';
+import { initAI } from './ai.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize State Storage
@@ -27,9 +28,10 @@ window.addEventListener('DOMContentLoaded', () => {
   initNotes();
   initAnalytics();
   initSettings();
+  initAI();
   initHeaderActions();
   initRouter();
-  initBackups();
+
 
   // 4. Initialize Authentication overlay and handlers
   initAuth(onAuthSuccess);
@@ -121,71 +123,3 @@ function initHeaderActions() {
   });
 }
 
-function initBackups() {
-  const exportBtnAuth = document.getElementById('auth-backup-export');
-  const importTriggerAuth = document.getElementById('auth-backup-import-trigger');
-  const fileInputAuth = document.getElementById('auth-backup-file-input');
-
-  const exportBtnSettings = document.getElementById('settings-backup-export');
-  const importTriggerSettings = document.getElementById('settings-backup-import-trigger');
-  const fileInputSettings = document.getElementById('settings-backup-file-input');
-
-  const handleExport = () => {
-    try {
-      const data = localStorage.getItem('studyflow_app_state_multiuser');
-      const backupData = data ? JSON.parse(data) : { users: [], activeUser: null };
-      
-      const json = JSON.stringify(backupData, null, 2);
-      const blob = new Blob([json], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      
-      const a = document.createElement('a');
-      const dateStr = new Date().toISOString().split('T')[0];
-      a.href = url;
-      a.download = `studyflow_backup_${dateStr}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    } catch (e) {
-      alert("Failed to export backup: " + e.message);
-    }
-  };
-
-  const handleImport = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      try {
-        const text = event.target.result;
-        const backupData = JSON.parse(text);
-        
-        if (backupData && (backupData.users !== undefined || backupData.activeUser !== undefined)) {
-          localStorage.setItem('studyflow_app_state_multiuser', JSON.stringify(backupData));
-          alert("Database restored successfully! The page will now reload.");
-          window.location.reload();
-        } else {
-          alert("Invalid backup file format. Please upload a valid StudyFlow backup JSON file.");
-        }
-      } catch (err) {
-        alert("Failed to parse backup file: " + err.message);
-      }
-    };
-    reader.readAsText(file);
-  };
-
-  if (exportBtnAuth) exportBtnAuth.addEventListener('click', handleExport);
-  if (exportBtnSettings) exportBtnSettings.addEventListener('click', handleExport);
-
-  if (importTriggerAuth && fileInputAuth) {
-    importTriggerAuth.addEventListener('click', () => fileInputAuth.click());
-    fileInputAuth.addEventListener('change', handleImport);
-  }
-
-  if (importTriggerSettings && fileInputSettings) {
-    importTriggerSettings.addEventListener('click', () => fileInputSettings.click());
-    fileInputSettings.addEventListener('change', handleImport);
-  }
-}

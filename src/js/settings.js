@@ -4,24 +4,39 @@ import { getActiveUser, getActiveUserEmail, updateActiveUserProfile, getState, u
 export function initSettings() {
   const btnProfile = document.getElementById('btn-settings-profile');
   const btnHelp = document.getElementById('btn-settings-help');
+  const btnAbout = document.getElementById('btn-settings-about');
   const profileContent = document.getElementById('settings-profile-content');
   const helpContent = document.getElementById('settings-help-content');
+  const aboutContent = document.getElementById('settings-about-content');
 
-  if (!btnProfile || !btnHelp || !profileContent || !helpContent) return;
+  if (!btnProfile || !btnHelp || !btnAbout || !profileContent || !helpContent || !aboutContent) return;
+
+  const deactivateAllSettingsTabs = () => {
+    btnProfile.classList.remove('active');
+    btnHelp.classList.remove('active');
+    btnAbout.classList.remove('active');
+    profileContent.style.display = 'none';
+    helpContent.style.display = 'none';
+    aboutContent.style.display = 'none';
+  };
 
   // Settings view Sub-tabs switching
   btnProfile.addEventListener('click', () => {
+    deactivateAllSettingsTabs();
     btnProfile.classList.add('active');
-    btnHelp.classList.remove('active');
     profileContent.style.display = 'block';
-    helpContent.style.display = 'none';
   });
 
   btnHelp.addEventListener('click', () => {
+    deactivateAllSettingsTabs();
     btnHelp.classList.add('active');
-    btnProfile.classList.remove('active');
     helpContent.style.display = 'block';
-    profileContent.style.display = 'none';
+  });
+
+  btnAbout.addEventListener('click', () => {
+    deactivateAllSettingsTabs();
+    btnAbout.classList.add('active');
+    aboutContent.style.display = 'block';
   });
 
   // Interactive FAQs Accordion Clicks

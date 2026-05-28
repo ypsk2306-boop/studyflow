@@ -63,7 +63,7 @@ function updateHeader(tabId) {
       headerSubtitle.textContent = 'Tune out distractions and dive deep';
       break;
     case 'notes':
-      headerTitle.textContent = 'Notion Notes Workspace';
+      headerTitle.textContent = 'Block Notes Workspace';
       headerSubtitle.textContent = 'Document learning, research, and summaries';
       break;
     case 'analytics':
