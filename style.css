@@ -2058,7 +2058,7 @@ body {
   flex-direction: column;
   gap: 10px;
   justify-content: center;
-  height: 180px;
+  margin-top: 12px;
 }
 
 .milestone-row {
@@ -2073,6 +2073,8 @@ body {
 
 .milestone-day {
   font-weight: 600;
+  width: 85px;
+  flex-shrink: 0;
 }
 
 .milestone-bar-container {
@@ -2094,6 +2096,9 @@ body {
 .milestone-status {
   font-size: 11px;
   font-weight: bold;
+  width: 60px;
+  text-align: right;
+  flex-shrink: 0;
 }
 
 .milestone-status.reached { color: var(--priority-low); }
@@ -2860,6 +2865,42 @@ body {
   opacity: 0;
   transition: opacity 0.3s ease;
   pointer-events: none;
+}
+
+/* Details / Summary Dropdown Styles for More Settings */
+.settings-details-dropdown {
+  margin-bottom: 16px;
+}
+.settings-details-dropdown summary {
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  background: var(--bg-tertiary);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border-color);
+  outline: none;
+  list-style: none;
+  transition: background var(--transition-smooth);
+}
+.settings-details-dropdown summary:hover {
+  background: rgba(255, 255, 255, 0.05);
+}
+.settings-details-dropdown summary::-webkit-details-marker {
+  display: none;
+}
+.settings-details-dropdown[open] summary svg.lucide-chevron-down {
+  transform: rotate(180deg);
+}
+.settings-details-dropdown-content {
+  padding: 16px 12px 12px;
+  border: 1px solid var(--border-color);
+  border-top: none;
+  border-radius: 0 0 var(--radius-md) var(--radius-md);
+  background: rgba(0,0,0,0.15);
 }
 
 @media (max-width: 1024px) {

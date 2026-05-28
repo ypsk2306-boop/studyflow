@@ -46,9 +46,12 @@ async function runTests() {
     document.getElementById('signup-form').dispatchEvent(new Event('submit'));
     await sleep(500);
 
-    // Get OTP from simulated toast
-    const toastOtp = document.getElementById('toast-otp-code').textContent.replace(/\s+/g, '').trim();
-    assert(toastOtp.length === 6, `Retrieved 6-digit OTP code: ${toastOtp}`);
+    // Fetch the generated OTP from the backend test API
+    log("Fetching registration OTP from backend...");
+    const otpResponse = await fetch('http://localhost:3000/api/get-latest-otp');
+    const otpData = await otpResponse.json();
+    const toastOtp = otpData.otp.replace(/\s+/g, '').trim();
+    assert(toastOtp.length === 6, `Retrieved 6-digit OTP code from backend: ${toastOtp}`);
 
     // Fill OTP digits
     const otpBoxes = document.querySelectorAll('.otp-input-box');

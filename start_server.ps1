@@ -22,6 +22,7 @@ Write-Host "==================================================`n" -ForegroundCol
 Start-Process "http://localhost:$port/"
 
 $currentDir = Get-Location
+$latestOtp = ""
 
 try {
     while ($listener.IsListening) {
@@ -105,6 +106,108 @@ try {
                         $response.ContentLength64 = $errBytes.Length
                         $response.OutputStream.Write($errBytes, 0, $errBytes.Length)
                     }
+                }
+                $response.Close()
+                continue
+            }
+            
+            # OTP Email Sender API Endpoint
+            if ($urlPath -eq "/api/send-otp") {
+                if ($request.HttpMethod -eq "POST") {
+                    try {
+                        $reader = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
+                        $body = $reader.ReadToEnd()
+                        $reader.Close()
+                        
+                        $payload = ConvertFrom-Json $body
+                        $toEmail = $payload.email
+                        $otp = $payload.otp
+                        
+                        $smtpConfigPath = Join-Path $currentDir "smtp_config.json"
+                        $emailSent = $false
+                        $errorMsg = ""
+                        
+                        # Store the OTP globally for test automation retrieval
+                        $latestOtp = $otp
+                        
+                        if (Test-Path $smtpConfigPath -PathType Leaf) {
+                            $smtpConfig = Get-Content $smtpConfigPath | ConvertFrom-Json
+                            $smtpUser = $smtpConfig.smtpUser
+                            $smtpPass = $smtpConfig.smtpPass
+                            
+                            if ($smtpUser -and $smtpPass -and $smtpUser -ne "your-email@gmail.com") {
+                                try {
+                                    $mail = New-Object System.Net.Mail.MailMessage
+                                    $mail.From = New-Object System.Net.Mail.MailAddress($smtpUser, "StudyFlow Support")
+                                    $mail.To.Add($toEmail)
+                                    $mail.Subject = "StudyFlow Password Recovery OTP"
+                                    
+                                    $htmlBody = @"
+<html>
+<body style="font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; color: #333;">
+  <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;">
+    <h2 style="color: #1a73e8; margin-top: 0;">StudyFlow Account Recovery</h2>
+    <p>We received a request to recover your password. Please use the following One-Time Password (OTP) to reset your password:</p>
+    <div style="font-size: 24px; font-weight: bold; background: #f0f4f9; padding: 15px; text-align: center; letter-spacing: 5px; color: #1a73e8; border-radius: 4px; margin: 20px 0;">
+      $otp
+    </div>
+    <p style="font-size: 12px; color: #666; border-top: 1px solid #eee; padding-top: 15px;">If you did not request this, you can safely ignore this email.</p>
+  </div>
+</body>
+</html>
+"@
+                                    $mail.Body = $htmlBody
+                                    $mail.IsBodyHtml = $true
+                                    
+                                    $smtp = New-Object System.Net.Mail.SmtpClient("smtp.gmail.com", 587)
+                                    $smtp.EnableSsl = $true
+                                    $smtp.Credentials = New-Object System.Net.NetworkCredential($smtpUser, $smtpPass)
+                                    $smtp.Send($mail)
+                                    $emailSent = $true
+                                    Write-Host "[SMTP] Recovery OTP email successfully sent to $toEmail" -ForegroundColor Green
+                                } catch {
+                                    $errorMsg = $_.Exception.Message
+                                    Write-Host "[SMTP Error] Failed to send email to $toEmail : $errorMsg" -ForegroundColor Red
+                                }
+                            }
+                        }
+                        
+                        if (-not $emailSent) {
+                            Write-Host "`n==================================================" -ForegroundColor Yellow
+                            Write-Host "  [DEVELOPER FALLBACK] Recovery OTP for $toEmail" -ForegroundColor Yellow
+                            Write-Host "  OTP CODE: $otp" -ForegroundColor Green
+                            if ($errorMsg) {
+                                Write-Host "  SMTP Error Details: $errorMsg" -ForegroundColor Red
+                            } else {
+                                Write-Host "  Note: Configure 'smtp_config.json' with your Gmail & App Password for real delivery." -ForegroundColor Gray
+                            }
+                            Write-Host "==================================================`n" -ForegroundColor Yellow
+                        }
+                        
+                        $response.ContentType = "application/json; charset=utf-8"
+                        $resBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":true}')
+                        $response.ContentLength64 = $resBytes.Length
+                        $response.OutputStream.Write($resBytes, 0, $resBytes.Length)
+                    } catch {
+                        $response.StatusCode = 500
+                        $errBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":false,"error":"Failed to process request"}')
+                        $response.ContentType = "application/json; charset=utf-8"
+                        $response.ContentLength64 = $errBytes.Length
+                        $response.OutputStream.Write($errBytes, 0, $errBytes.Length)
+                    }
+                }
+                $response.Close()
+                continue
+            }
+            
+            # GET Latest OTP endpoint (for automated testing context only)
+            if ($urlPath -eq "/api/get-latest-otp") {
+                if ($request.HttpMethod -eq "GET") {
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $jsonStr = '{"otp":"' + $latestOtp + '"}'
+                    $otpBytes = [System.Text.Encoding]::UTF8.GetBytes($jsonStr)
+                    $response.ContentLength64 = $otpBytes.Length
+                    $response.OutputStream.Write($otpBytes, 0, $otpBytes.Length)
                 }
                 $response.Close()
                 continue

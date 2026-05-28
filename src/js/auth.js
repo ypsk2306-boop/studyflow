@@ -1,5 +1,5 @@
 // Authentication Module for StudyFlow
-import { getActiveUser, loginUser, registerUser, logoutUser } from './state.js';
+import { getActiveUser, loginUser, registerUser, logoutUser, verifyUserCredentials, resetUserPassword, isUsernameTaken } from './state.js';
 import { switchTab } from './router.js';
 
 let authSuccessCallback = null;
@@ -36,7 +36,12 @@ export function initAuth(onAuthSuccess) {
     tabSignup.classList.remove('active');
     loginForm.style.display = 'flex';
     signupForm.style.display = 'none';
-    document.getElementById('otp-panel').style.display = 'none';
+    const otpPanel = document.getElementById('otp-panel');
+    if (otpPanel) otpPanel.style.display = 'none';
+    const forgotForm = document.getElementById('forgot-password-form');
+    const resetPanel = document.getElementById('reset-password-panel');
+    if (forgotForm) forgotForm.style.display = 'none';
+    if (resetPanel) resetPanel.style.display = 'none';
     hideErrors();
   });
 
@@ -45,7 +50,12 @@ export function initAuth(onAuthSuccess) {
     tabLogin.classList.remove('active');
     signupForm.style.display = 'flex';
     loginForm.style.display = 'none';
-    document.getElementById('otp-panel').style.display = 'none';
+    const otpPanel = document.getElementById('otp-panel');
+    if (otpPanel) otpPanel.style.display = 'none';
+    const forgotForm = document.getElementById('forgot-password-form');
+    const resetPanel = document.getElementById('reset-password-panel');
+    if (forgotForm) forgotForm.style.display = 'none';
+    if (resetPanel) resetPanel.style.display = 'none';
     hideErrors();
   });
 
@@ -56,10 +66,13 @@ export function initAuth(onAuthSuccess) {
 
     const usernameInput = document.getElementById('login-username');
     const passwordInput = document.getElementById('login-password');
+    const staySignedInInput = document.getElementById('login-stay-signed-in');
     const errorEl = document.getElementById('login-error');
 
+    const staySignedIn = staySignedInInput ? staySignedInInput.checked : false;
+
     try {
-      const result = await loginUser(usernameInput.value, passwordInput.value);
+      const result = await loginUser(usernameInput.value, passwordInput.value, staySignedIn);
 
       if (result.success) {
         handleAuthSuccess();
@@ -76,7 +89,7 @@ export function initAuth(onAuthSuccess) {
     }
   });
 
-  // Signup Submit (Direct signup, bypass OTP)
+  // Signup Submit (OTP verification flow)
   signupForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     hideErrors();
@@ -100,18 +113,42 @@ export function initAuth(onAuthSuccess) {
         return;
       }
 
-      const result = await registerUser(usernameInput.value, passwordInput.value, emailInput.value);
-      if (result.success) {
-        // Clear inputs
-        usernameInput.value = '';
-        emailInput.value = '';
-        passwordInput.value = '';
-        confirmInput.value = '';
-        
-        handleAuthSuccess();
-      } else {
-        errorEl.textContent = result.message || 'Registration failed.';
+      if (isUsernameTaken(usernameInput.value)) {
+        errorEl.textContent = 'Username already registered.';
         errorEl.style.display = 'block';
+        return;
+      }
+
+      // Save credentials temporarily for registration after OTP check
+      tempSignupData.username = usernameInput.value;
+      tempSignupData.email = emailInput.value;
+      tempSignupData.password = passwordInput.value;
+
+      // Generate verification OTP code
+      generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+      const formatted = `${generatedOTP.slice(0,3)} ${generatedOTP.slice(3)}`;
+
+      // Send OTP via backend email endpoint
+      try {
+        await fetch('http://localhost:3000/api/send-otp', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ email: emailInput.value, otp: formatted })
+        });
+      } catch (fetchErr) {
+        console.error("Failed to send OTP email:", fetchErr);
+      }
+
+      // Hide signup form and show OTP verification panel
+      signupForm.style.display = 'none';
+      const otpPanel = document.getElementById('otp-panel');
+      if (otpPanel) {
+        otpPanel.style.display = 'flex';
+        const emailDisplay = document.getElementById('otp-email-display');
+        if (emailDisplay) emailDisplay.textContent = emailInput.value;
+        startResendTimer();
       }
     } catch (err) {
       console.error("Signup unexpected error:", err);
@@ -148,7 +185,8 @@ export function initAuth(onAuthSuccess) {
           const result = await registerUser(tempSignupData.username, tempSignupData.password, tempSignupData.email);
           if (result.success) {
             // Success cleanup
-            document.getElementById('otp-panel').style.display = 'none';
+            const otpPanel = document.getElementById('otp-panel');
+            if (otpPanel) otpPanel.style.display = 'none';
             document.getElementById('signup-username').value = '';
             document.getElementById('signup-email').value = '';
             document.getElementById('signup-password').value = '';
@@ -188,7 +226,8 @@ export function initAuth(onAuthSuccess) {
   const backBtn = document.getElementById('otp-back-btn');
   if (backBtn) {
     backBtn.addEventListener('click', () => {
-      document.getElementById('otp-panel').style.display = 'none';
+      const otpPanel = document.getElementById('otp-panel');
+      if (otpPanel) otpPanel.style.display = 'none';
       signupForm.style.display = 'flex';
       clearOTPDigits();
       hideErrors();
@@ -211,6 +250,199 @@ export function initAuth(onAuthSuccess) {
         logoutUser();
         showAuthOverlay();
         switchTab('dashboard'); // go back to dashboard underlying
+      }
+    });
+  }
+
+  // --- PASSWORD RECOVERY LISTENERS ---
+  const forgotLink = document.getElementById('forgot-password-link');
+  const forgotForm = document.getElementById('forgot-password-form');
+  const resetPanel = document.getElementById('reset-password-panel');
+  const forgotBackBtn = document.getElementById('forgot-back-btn');
+  const resetBackBtn = document.getElementById('reset-back-btn');
+  const resetSubmitBtn = document.getElementById('reset-submit-btn');
+
+  // Handle forgot password click
+  if (forgotLink) {
+    forgotLink.addEventListener('click', (e) => {
+      e.preventDefault();
+      loginForm.style.display = 'none';
+      if (document.querySelector('.auth-tabs')) {
+        document.querySelector('.auth-tabs').style.display = 'none';
+      }
+      if (forgotForm) {
+        forgotForm.style.display = 'flex';
+        document.getElementById('forgot-username').value = '';
+        document.getElementById('forgot-email').value = '';
+      }
+      hideErrors();
+    });
+  }
+
+  // Back from forgot password form to login
+  if (forgotBackBtn) {
+    forgotBackBtn.addEventListener('click', () => {
+      if (forgotForm) forgotForm.style.display = 'none';
+      if (document.querySelector('.auth-tabs')) {
+        document.querySelector('.auth-tabs').style.display = 'flex';
+      }
+      loginForm.style.display = 'flex';
+      hideErrors();
+      hideSimulatedEmailToast();
+    });
+  }
+
+  // Handle forgot password form submit (verify & trigger OTP)
+  if (forgotForm) {
+    forgotForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const usernameVal = document.getElementById('forgot-username').value;
+      const emailVal = document.getElementById('forgot-email').value;
+      const errorEl = document.getElementById('forgot-error');
+      
+      errorEl.style.display = 'none';
+      
+      const verification = verifyUserCredentials(usernameVal, emailVal);
+      if (verification.success) {
+        // Temp save username for reset context
+        tempSignupData.username = usernameVal;
+        
+        // Generate recovery OTP code
+        generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+        const formatted = `${generatedOTP.slice(0,3)} ${generatedOTP.slice(3)}`;
+        
+        // Send OTP via backend email endpoint
+        try {
+          await fetch('http://localhost:3000/api/send-otp', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ email: emailVal, otp: formatted })
+          });
+        } catch (fetchErr) {
+          console.error("Failed to send OTP email:", fetchErr);
+        }
+        
+        // Show Reset Password panel
+        forgotForm.style.display = 'none';
+        if (resetPanel) {
+          resetPanel.style.display = 'flex';
+          document.getElementById('reset-new-password').value = '';
+          document.getElementById('reset-confirm-password').value = '';
+          document.querySelectorAll('.reset-otp-input-box').forEach(box => box.value = '');
+        }
+      } else {
+        errorEl.textContent = verification.message;
+        errorEl.style.display = 'block';
+      }
+    });
+  }
+
+  // Setup Recovery OTP Digits Inputs Focus Shifts
+  const resetOtpInputs = document.querySelectorAll('.reset-otp-input-box');
+  resetOtpInputs.forEach((input, index) => {
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace') {
+        e.preventDefault();
+        input.value = '';
+        const prev = resetOtpInputs[index - 1];
+        if (prev) prev.focus();
+        return;
+      }
+      if (e.key === 'ArrowLeft') {
+        e.preventDefault();
+        const prev = resetOtpInputs[index - 1];
+        if (prev) prev.focus();
+        return;
+      }
+      if (e.key === 'ArrowRight') {
+        e.preventDefault();
+        const next = resetOtpInputs[index + 1];
+        if (next) next.focus();
+        return;
+      }
+      if (e.key === 'Tab' || e.key === 'Enter') return;
+      if (!/[0-9]/.test(e.key)) e.preventDefault();
+    });
+
+    input.addEventListener('input', () => {
+      if (input.value.length > 0) {
+        const next = resetOtpInputs[index + 1];
+        if (next) next.focus();
+      }
+    });
+  });
+
+  // Cancel reset password
+  if (resetBackBtn) {
+    resetBackBtn.addEventListener('click', () => {
+      if (resetPanel) resetPanel.style.display = 'none';
+      if (document.querySelector('.auth-tabs')) {
+        document.querySelector('.auth-tabs').style.display = 'flex';
+      }
+      loginForm.style.display = 'flex';
+      hideErrors();
+      hideSimulatedEmailToast();
+    });
+  }
+
+  // Handle password reset submit
+  if (resetSubmitBtn) {
+    resetSubmitBtn.addEventListener('click', async () => {
+      const errorEl = document.getElementById('reset-error');
+      errorEl.style.display = 'none';
+
+      // Gather OTP
+      let enteredCode = '';
+      resetOtpInputs.forEach(box => {
+        enteredCode += box.value;
+      });
+
+      if (enteredCode.length < 6) {
+        errorEl.textContent = 'Please enter all 6 digits.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (enteredCode !== generatedOTP) {
+        errorEl.textContent = 'Incorrect verification code. Please check your simulated email toast.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      const newPasswordInput = document.getElementById('reset-new-password');
+      const confirmPasswordInput = document.getElementById('reset-confirm-password');
+
+      if (newPasswordInput.value.length < 6) {
+        errorEl.textContent = 'Password must be at least 6 characters long.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      if (newPasswordInput.value !== confirmPasswordInput.value) {
+        errorEl.textContent = 'Passwords do not match.';
+        errorEl.style.display = 'block';
+        return;
+      }
+
+      try {
+        const result = await resetUserPassword(tempSignupData.username, newPasswordInput.value);
+        if (result.success) {
+          if (resetPanel) resetPanel.style.display = 'none';
+          if (document.querySelector('.auth-tabs')) {
+            document.querySelector('.auth-tabs').style.display = 'flex';
+          }
+          hideSimulatedEmailToast();
+          handleAuthSuccess();
+        } else {
+          errorEl.textContent = result.message || 'Failed to reset password.';
+          errorEl.style.display = 'block';
+        }
+      } catch (err) {
+        console.error("Password reset error:", err);
+        errorEl.textContent = 'An unexpected error occurred. Please try again.';
+        errorEl.style.display = 'block';
       }
     });
   }
@@ -386,9 +618,13 @@ function hideErrors() {
   const loginErr = document.getElementById('login-error');
   const signupErr = document.getElementById('signup-error');
   const otpErr = document.getElementById('otp-error');
+  const forgotErr = document.getElementById('forgot-error');
+  const resetErr = document.getElementById('reset-error');
   if (loginErr) loginErr.style.display = 'none';
   if (signupErr) signupErr.style.display = 'none';
   if (otpErr) otpErr.style.display = 'none';
+  if (forgotErr) forgotErr.style.display = 'none';
+  if (resetErr) resetErr.style.display = 'none';
 }
 
 function isLocalStorageAvailable() {

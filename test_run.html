@@ -696,20 +696,27 @@
 
                   <div class="settings-divider"></div>
 
-                  <div class="settings-section-header">
-                    <h4>More Settings</h4>
-                    <p style="font-size: 11px; color: var(--text-tertiary);">Configure optional dashboard widget permissions.</p>
-                  </div>
-
-                  <div class="form-group" style="margin-bottom: 16px;">
-                    <label class="toggle-container">
-                      <span class="toggle-switch">
-                        <input type="checkbox" id="settings-ambient-enabled">
-                        <span class="toggle-slider"></span>
-                      </span>
-                      <span class="toggle-label">Enable Ambient Sound Mixer in Focus Room</span>
-                    </label>
-                  </div>
+                  <details class="settings-details-dropdown">
+                    <summary>
+                      <div style="display: flex; align-items: center; gap: 8px;">
+                        <i data-lucide="settings-2" style="width: 16px; height: 16px; color: var(--accent-secondary);"></i>
+                        <span>More Settings</span>
+                      </div>
+                      <i data-lucide="chevron-down" style="width: 16px; height: 16px; transition: transform var(--transition-smooth);"></i>
+                    </summary>
+                    <div class="settings-details-dropdown-content">
+                      <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">Configure optional dashboard widget permissions.</p>
+                      <div class="form-group" style="margin-bottom: 0;">
+                        <label class="toggle-container">
+                          <span class="toggle-switch">
+                            <input type="checkbox" id="settings-ambient-enabled">
+                            <span class="toggle-slider"></span>
+                          </span>
+                          <span class="toggle-label">Enable Ambient Sound Mixer in Focus Room</span>
+                        </label>
+                      </div>
+                    </div>
+                  </details>
 
                   <div class="settings-divider"></div>
                   
@@ -1014,6 +1021,13 @@
           <label for="login-password">Password</label>
           <input type="password" id="login-password" placeholder="Enter password" required autocomplete="current-password">
         </div>
+        <div class="login-options-row" style="display: flex; justify-content: space-between; align-items: center; margin-top: 12px; margin-bottom: 16px; font-size: 12px; font-family: var(--font-sans);">
+          <label class="checkbox-container" style="display: flex; align-items: center; gap: 6px; cursor: pointer; color: var(--text-secondary); user-select: none;">
+            <input type="checkbox" id="login-stay-signed-in" style="width: 14px; height: 14px; accent-color: var(--accent-primary); cursor: pointer;">
+            <span>Stay signed in</span>
+          </label>
+          <a href="#" id="forgot-password-link" style="color: var(--accent-primary); text-decoration: none; font-weight: 500; transition: opacity var(--transition-smooth);" onmouseover="this.style.opacity='0.8'" onmouseout="this.style.opacity='1'">Forgot password?</a>
+        </div>
         <div class="auth-error-msg" id="login-error" style="display: none;"></div>
         <button type="submit" class="btn btn-primary auth-submit-btn">Access Workspace</button>
       </form>
@@ -1039,6 +1053,56 @@
         <div class="auth-error-msg" id="signup-error" style="display: none;"></div>
         <button type="submit" class="btn btn-primary auth-submit-btn">Create Profile</button>
       </form>
+
+      <!-- Forgot Password Panel -->
+      <form class="auth-form" id="forgot-password-form" style="display: none;">
+        <div class="otp-header" style="text-align: center; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Recover Password</h3>
+          <p style="font-size: 12px; color: var(--text-tertiary);">Enter your registered username and email to receive a recovery code.</p>
+        </div>
+        <div class="form-group">
+          <label for="forgot-username">Username</label>
+          <input type="text" id="forgot-username" placeholder="Enter username" required autocomplete="username">
+        </div>
+        <div class="form-group">
+          <label for="forgot-email">Email Address</label>
+          <input type="email" id="forgot-email" placeholder="student@university.edu" required autocomplete="email">
+        </div>
+        <div class="auth-error-msg" id="forgot-error" style="display: none;"></div>
+        <button type="submit" class="btn btn-primary auth-submit-btn">Send Recovery Code</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="forgot-back-btn" style="margin-top: 14px; width: 100%; justify-content: center;">Back to Log In</button>
+      </form>
+
+      <!-- Reset Password Panel -->
+      <div class="auth-form" id="reset-password-panel" style="display: none;">
+        <div class="otp-header" style="text-align: center; margin-bottom: 12px;">
+          <h3 style="font-size: 16px; font-weight: 600; margin-bottom: 4px;">Set New Password</h3>
+          <p style="font-size: 12px; color: var(--text-tertiary);">Enter the 6-digit recovery code and choose a new password.</p>
+        </div>
+        
+        <div class="otp-inputs-grid" style="display: flex; gap: 8px; justify-content: center; margin: 16px 0;">
+          <input type="text" class="reset-otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 42px; height: 48px; border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: var(--radius-sm); text-align: center; font-size: 18px; font-family: var(--font-mono); color: var(--text-primary); outline: none; transition: var(--transition-smooth);">
+          <input type="text" class="reset-otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 42px; height: 48px; border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: var(--radius-sm); text-align: center; font-size: 18px; font-family: var(--font-mono); color: var(--text-primary); outline: none; transition: var(--transition-smooth);">
+          <input type="text" class="reset-otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 42px; height: 48px; border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: var(--radius-sm); text-align: center; font-size: 18px; font-family: var(--font-mono); color: var(--text-primary); outline: none; transition: var(--transition-smooth);">
+          <input type="text" class="reset-otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 42px; height: 48px; border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: var(--radius-sm); text-align: center; font-size: 18px; font-family: var(--font-mono); color: var(--text-primary); outline: none; transition: var(--transition-smooth);">
+          <input type="text" class="reset-otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 42px; height: 48px; border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: var(--radius-sm); text-align: center; font-size: 18px; font-family: var(--font-mono); color: var(--text-primary); outline: none; transition: var(--transition-smooth);">
+          <input type="text" class="reset-otp-input-box" maxlength="1" pattern="[0-9]" inputmode="numeric" required style="width: 42px; height: 48px; border: 1px solid var(--border-color); background: var(--bg-secondary); border-radius: var(--radius-sm); text-align: center; font-size: 18px; font-family: var(--font-mono); color: var(--text-primary); outline: none; transition: var(--transition-smooth);">
+        </div>
+
+        <div class="form-group">
+          <label for="reset-new-password">New Password</label>
+          <input type="password" id="reset-new-password" placeholder="Min 6 characters" required autocomplete="new-password">
+        </div>
+        
+        <div class="form-group" style="margin-bottom: 16px;">
+          <label for="reset-confirm-password">Confirm New Password</label>
+          <input type="password" id="reset-confirm-password" placeholder="Re-enter new password" required autocomplete="new-password">
+        </div>
+        
+        <div class="auth-error-msg" id="reset-error" style="display: none;"></div>
+        <button type="button" class="btn btn-primary auth-submit-btn" id="reset-submit-btn">Reset Password & Login</button>
+        <button type="button" class="btn btn-secondary btn-sm" id="reset-back-btn" style="margin-top: 14px; width: 100%; justify-content: center;">Cancel</button>
+      </div>
 
       <!-- OTP Verification Panel -->
       <div class="auth-form" id="otp-panel" style="display: none;">

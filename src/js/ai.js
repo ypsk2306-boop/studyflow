@@ -430,30 +430,277 @@ function runDraftAction() {
   `;
 }
 
+function runAboutExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-primary);">📘 About StudyFlow Workspace:</p>
+      <p style="margin-top: 4px; line-height: 1.4; color: var(--text-secondary); font-size: 12px;">
+        StudyFlow is a premium study companion designed to empower students to build disciplined habits, organize coursework, and maximize focus. Combining task planning, deep work timers, ambient soundtracks, and beautiful analytics, StudyFlow provides a cohesive local workstation for your academic success.
+      </p>
+      <p style="margin-top: 6px; line-height: 1.4; color: var(--text-secondary); font-size: 12px;">
+        <strong>Technology Stack & Architecture:</strong> It runs fully client-side on HTML5, CSS variables themes (Dark, Light, Cozy Sepia), and ESM JavaScript Modules, storing data securely in your browser's local storage with SHA-256 password hashing.
+      </p>
+    </div>
+  `;
+}
+
+function runFeaturesExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-primary);">🌟 Core Workspace Features:</p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>🎛️ <strong>Dashboard Overview:</strong> Live productivity stats, weekly study bar charts, daily goal rings, today's tasks list, and recent notes.</li>
+        <li>📋 <strong>Study Planner & Kanban:</strong> Drag-and-drop task boards, filter by subjects, search, and due dates with priority tags.</li>
+        <li>⏱️ <strong>Focus Room & Pomodoro:</strong> Timer presets with breathing rings, active task binding, and session tally dots.</li>
+        <li>🎵 <strong>Ambient Sound Mixer:</strong> Adjust channels to blend Rain, Cafe, Binaural Waves, and Forest soundtracks.</li>
+        <li>📝 <strong>Block Notes Workspace:</strong> Notion-like rich notebook supporting slash commands block elements.</li>
+        <li>📊 <strong>Productivity Analytics:</strong> Streaks, weekly distributions, and subject breakdown pie charts.</li>
+        <li>⚙️ <strong>Profile Settings:</strong> Timer intervals, SHA-256 hashed password updates, and visual themes.</li>
+        <li>🔒 <strong>Offline Security:</strong> Full privacy with localized storage.</li>
+      </ul>
+      <p style="margin-top: 6px; font-size: 11px; color: var(--text-tertiary);">Ask me about any specific feature to learn how it works!</p>
+    </div>
+  `;
+}
+
+function runDashboardExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">🎛️ Dashboard Overview:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        The Dashboard is your main productivity command center, offering a snapshot of your daily achievements and study logs:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>📊 <strong>Overview Stat Cards:</strong> Tracks study stats in real time: Focus Time, Tasks Completed ratio, active Study Streak day count, and a Focus Score based on session completions.</li>
+        <li>📈 <strong>Weekly Study Distribution:</strong> A native SVG bar chart illustrating your study hours over the last 7 days.</li>
+        <li>🎯 <strong>Daily Study Goal Ring:</strong> A circular progress bar tracking how close you are to completing your daily target.</li>
+        <li>📋 <strong>Today's Focus Tasks:</strong> Displays tasks due today with a direct link to the planner.</li>
+        <li>📝 <strong>Recent Notes:</strong> Displays your most recently edited notebook pages.</li>
+        <li>✨ <strong>FlowAI Assistant:</strong> Chat assistant, action chips, and interactive quiz.</li>
+      </ul>
+      <p style="margin-top: 6px;">
+        <a href="#" class="ai-view-link" data-tab-link="dashboard" style="color: var(--accent-secondary); text-decoration: underline; font-weight: 500;">Open Dashboard</a>
+      </p>
+    </div>
+  `;
+}
+
+function runPlannerExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">📋 Study Planner & Kanban Board:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        The Planner features a visual Kanban board to organize, prioritize, and track your study workflow:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>📂 <strong>Workflow Columns:</strong> Manage tasks across "To Do", "In Progress", and "Completed" stages. Drag and drop cards to update status.</li>
+        <li>🏷️ <strong>Task Customization:</strong> Assign subject tags, priority levels (Low, Medium, High), and estimated Pomodoros.</li>
+        <li>📅 <strong>Due Dates:</strong> Specify task deadlines with visual overdue indicators.</li>
+        <li>🔍 <strong>Search & Filters:</strong> Filter tasks by subject or search by name and tags.</li>
+      </ul>
+      <p style="margin-top: 6px;">
+        <a href="#" class="ai-view-link" data-tab-link="planner" style="color: var(--accent-secondary); text-decoration: underline; font-weight: 500;">Open Study Planner</a>
+      </p>
+    </div>
+  `;
+}
+
+function runFocusExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">⏱️ Focus Room & Pomodoro Timer:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        The Focus Room is engineered for deep work sessions, designed to minimize distraction:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>⌛ <strong>Timer Presets:</strong> Toggle between "Pomodoro" (25m focus), "Short Break" (5m), and "Long Break" (15m).</li>
+        <li>🌀 <strong>Breathing Animation Ring:</strong> A dynamic visual breathing circle synced to the countdown timer.</li>
+        <li>🔗 <strong>Active Task Binding:</strong> Bind your focus session directly to a planner task to log time correctly.</li>
+        <li>🎯 <strong>Session Tally:</strong> Tracks daily Pomodoro sessions visually with indicator dots.</li>
+      </ul>
+      <p style="margin-top: 6px;">
+        <a href="#" class="ai-view-link" data-tab-link="timer" style="color: var(--accent-secondary); text-decoration: underline; font-weight: 500;">Open Focus Room</a>
+      </p>
+    </div>
+  `;
+}
+
+function runAmbientMixerExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">🎵 Ambient Sound Mixer:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        Located in the Focus Room, the Ambient Mixer allows blending four high-quality soundtracks:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>🌧️ <strong>Cosy Rain:</strong> Gentle rainfall sound.</li>
+        <li>☕ <strong>Parisian Cafe:</strong> Soft chatter and clinking dishes.</li>
+        <li>Waves <strong>Binaural Waves:</strong> Focus-boosting low-frequency frequencies.</li>
+        <li>🌲 <strong>Forest Canopy:</strong> Birds and rustling leaves.</li>
+        <li>🎛️ <strong>Controls:</strong> Adjust volume sliders independently, or click icons to mute/unmute. Runs fully client-side on Web Audio API.</li>
+      </ul>
+      <p style="margin-top: 6px;">
+        <a href="#" class="ai-view-link" data-tab-link="timer" style="color: var(--accent-secondary); text-decoration: underline; font-weight: 500;">Configure Sound Mixer</a>
+      </p>
+    </div>
+  `;
+}
+
+function runNotesExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">📝 Block Notes Workspace:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        The Notes workspace is a flexible block-based text editor, similar to Notion, designed for rich academic writing:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>⌨️ <strong>Slash Commands:</strong> Type <kbd>/</kbd> on a new line to access the quick block insertion menu.</li>
+        <li>🧱 <strong>Block Variety:</strong> Insert different elements: Heading 1, Heading 2, Bullet Lists, Checkbox Todo lists, callout info cards, code syntax boxes, and horizontal dividers.</li>
+        <li>📂 <strong>Notebook Management:</strong> Add, rename, delete pages, and assign subject tags.</li>
+        <li>💾 <strong>Autosave:</strong> Notes are automatically saved in local state as you type.</li>
+      </ul>
+      <p style="margin-top: 6px;">
+        <a href="#" class="ai-view-link" data-tab-link="notes" style="color: var(--accent-secondary); text-decoration: underline; font-weight: 500;">Open Notes Workspace</a>
+      </p>
+    </div>
+  `;
+}
+
+function runAnalyticsExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">📊 Productivity Analytics:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        The Analytics dashboard offers clear, visual insights into your study habits:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>📊 <strong>Weekly Study Distribution:</strong> A bar graph plotting study hours over the past 7 days.</li>
+        <li>🍰 <strong>Subject Pie Chart:</strong> A breakdown showing the proportion of study time allocated to each subject.</li>
+        <li>🎯 <strong>Daily Goal Progress:</strong> A progress ring tracking daily focus durations relative to daily targets.</li>
+        <li>🔥 <strong>Study Streak Counter:</strong> Counts consecutive active days of focus to keep your motivation high.</li>
+      </ul>
+      <p style="margin-top: 6px;">
+        <a href="#" class="ai-view-link" data-tab-link="analytics" style="color: var(--accent-secondary); text-decoration: underline; font-weight: 500;">Open Analytics</a>
+      </p>
+    </div>
+  `;
+}
+
+function runSettingsExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">⚙️ Profile Settings & Customization:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        The Settings page lets you customize StudyFlow to align with your personal study habits:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>👤 <strong>Account Info:</strong> Modify email address.</li>
+        <li>🔒 <strong>Cryptographic Passwords:</strong> Update passwords client-side using SHA-256 hashes.</li>
+        <li>⏱️ <strong>Timer Durations:</strong> Customize Pomodoro focus, short break, and long break intervals.</li>
+        <li>🎯 <strong>Daily Target Goal:</strong> Configure daily study goal in hours.</li>
+        <li>📘 <strong>About App:</strong> Read app description, technology stack, architecture details, and licenses.</li>
+      </ul>
+      <p style="margin-top: 6px;">
+        <a href="#" class="ai-view-link" data-tab-link="settings" style="color: var(--accent-secondary); text-decoration: underline; font-weight: 500;">Open Settings</a>
+      </p>
+    </div>
+  `;
+}
+
+function runThemesExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">🎨 Visual Themes & Aesthetics:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        StudyFlow is built with a premium glassmorphic UI, supporting three customized color themes:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>🌙 <strong>Dark Glass Mode:</strong> Futuristic dark background with frosted translucent panels, glow gradients, and neon blue highlights.</li>
+        <li>☀️ <strong>Light Glass Mode:</strong> Clean, high-contrast light theme with frosted white glass plates and vivid accents.</li>
+        <li>🍂 <strong>Cozy Sepia Mode:</strong> Warm, amber-toned reader theme that reduces eye strain during late-night study sessions.</li>
+      </ul>
+      <p style="margin-top: 4px; font-size: 12px; color: var(--text-secondary);">
+        Switch themes instantly using the toggle buttons at the bottom of the sidebar!
+      </p>
+    </div>
+  `;
+}
+
+function runSecurityExplanation() {
+  return `
+    <div>
+      <p style="font-weight: 600; color: var(--accent-secondary);">🔒 Local Data & Cryptographic Security:</p>
+      <p style="margin-top: 4px; line-height: 1.3; font-size: 12px; color: var(--text-secondary);">
+        StudyFlow is designed with local privacy and data ownership in mind:
+      </p>
+      <ul style="padding-left: 18px; margin: 6px 0; display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--text-secondary);">
+        <li>💾 <strong>Offline-First Storage:</strong> All profile credentials, tasks, Pomodoro logs, streaks, and note blocks are saved strictly in your browser's private <code>localStorage</code> database. No data is transmitted to third-party servers.</li>
+        <li>🔐 <strong>SHA-256 Hashing:</strong> Passwords are cryptographically hashed using the SHA-256 algorithm before writing to the database, ensuring plaintexts are never exposed.</li>
+        <li>👥 <strong>Multi-Profile Support:</strong> Supports separate login profiles on the same browser sandbox.</li>
+      </ul>
+    </div>
+  `;
+}
+
 function generateResponse(prompt) {
   const query = prompt.toLowerCase();
 
-  // Keyword parser routing
-  if (query.includes('plan study') || query.includes('suggest plan') || (query.includes('plan') && query.includes('study'))) {
+  // 1. Core Interactive Action Triggers
+  if (query.includes('plan study') || query.includes('suggest plan') || (query.includes('plan') && query.includes('study') && !query.includes('how') && !query.includes('explain') && !query.includes('what'))) {
     return runPlanAction();
   }
   if (query.includes('break down') || query.includes('breakdown') || query.includes('subtask') || query.includes('sub-task')) {
     return runBreakdownAction();
   }
-  if (query.includes('audit') || query.includes('stats') || query.includes('diagnose') || query.includes('review') || query.includes('analyse') || query.includes('performance')) {
+  if (query.includes('audit') || query.includes('diagnose') || query.includes('review') || query.includes('analyse') || query.includes('performance')) {
     return runAuditAction();
   }
-  if (query.includes('quiz') || query.includes('test') || query.includes('question')) {
+  if (query.includes('start quiz') || (query.includes('quiz') && !query.includes('how') && !query.includes('explain') && !query.includes('what')) || query.includes('test') || query.includes('question')) {
     return runQuizAction();
   }
-  if (query.includes('draft') || query.includes('note') || query.includes('notebook') || query.includes('write')) {
+  if (query.includes('draft') || (query.includes('note') && query.includes('draft')) || (query.includes('write') && query.includes('note'))) {
     return runDraftAction();
   }
-  if (query.includes('tip') || query.includes('method') || query.includes('feynman') || query.includes('pomodoro') || query.includes('active recall')) {
+  if (query.includes('tip') || query.includes('method') || query.includes('active recall') || query.includes('feynman') || (query.includes('pomodoro') && query.includes('tip'))) {
     return runTipsAction();
   }
 
-  // General Conversational Response Fallbacks
+  // 2. Feature-specific Explanations & Knowledge Base
+  if (query.includes('about the app') || query.includes('app description') || query.includes('about studyflow') || query.includes('description of the app') || query.includes('describe the app') || query.includes('what is studyflow') || query.includes('tell me about studyflow') || query.includes('about') || query.includes('description')) {
+    return runAboutExplanation();
+  }
+  if (query.includes('all features') || query.includes('list features') || query.includes('what features') || query.includes('what can you do') || query.includes('what does this app do') || query.includes('explain features') || query.includes('workspace features') || query.includes('core features') || query.includes('app features')) {
+    return runFeaturesExplanation();
+  }
+  if (query.includes('dashboard') || query.includes('overview card') || query.includes('today\'s tasks') || query.includes('recent notes')) {
+    return runDashboardExplanation();
+  }
+  if (query.includes('planner') || query.includes('kanban') || query.includes('board') || query.includes('task board') || query.includes('todo') || query.includes('to do') || query.includes('in progress') || query.includes('drag and drop')) {
+    return runPlannerExplanation();
+  }
+  if (query.includes('focus room') || query.includes('timer') || query.includes('pomodoro') || query.includes('breathing') || query.includes('session')) {
+    return runFocusExplanation();
+  }
+  if (query.includes('sound') || query.includes('mixer') || query.includes('ambient') || query.includes('rain') || query.includes('cafe') || query.includes('binaural') || query.includes('forest') || query.includes('music') || query.includes('soundtrack')) {
+    return runAmbientMixerExplanation();
+  }
+  if (query.includes('note') || query.includes('editor') || query.includes('block') || query.includes('slash command') || query.includes('notebook')) {
+    return runNotesExplanation();
+  }
+  if (query.includes('analytics') || query.includes('chart') || query.includes('streak') || query.includes('stats') || query.includes('distribution') || query.includes('pie chart') || query.includes('bar chart') || query.includes('goal ring')) {
+    return runAnalyticsExplanation();
+  }
+  if (query.includes('settings') || query.includes('profile') || query.includes('password') || query.includes('email') || query.includes('duration') || query.includes('interval')) {
+    return runSettingsExplanation();
+  }
+  if (query.includes('theme') || query.includes('dark mode') || query.includes('light mode') || query.includes('sepia') || query.includes('style') || query.includes('look') || query.includes('cozy')) {
+    return runThemesExplanation();
+  }
+  if (query.includes('security') || query.includes('hash') || query.includes('sha-256') || query.includes('localstorage') || query.includes('privacy') || query.includes('offline') || query.includes('private') || query.includes('encrypt') || query.includes('auth') || query.includes('login') || query.includes('signup') || query.includes('sign up')) {
+    return runSecurityExplanation();
+  }
+
+  // 3. Conversational Response Fallbacks
   if (query.includes('hello') || query.includes('hi') || query.includes('hey') || query.includes('welcome')) {
     return `
       <div>

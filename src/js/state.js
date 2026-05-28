@@ -47,6 +47,19 @@ export function loadState() {
       wrapperState = JSON.parse(data);
       wrapperState.users = wrapperState.users || [];
       
+      // Determine session user based on stay-signed-in settings
+      const transientUser = sessionStorage.getItem('studyflow_session_user');
+      if (transientUser) {
+        wrapperState.activeUser = transientUser;
+      } else {
+        const staySignedIn = localStorage.getItem('studyflow_stay_signed_in') === 'true';
+        if (!staySignedIn) {
+          wrapperState.activeUser = null;
+        } else if (wrapperState.activeUser) {
+          sessionStorage.setItem('studyflow_session_user', wrapperState.activeUser);
+        }
+      }
+
       if (wrapperState.activeUser) {
         const user = wrapperState.users.find(u => u.username && wrapperState.activeUser && u.username.toLowerCase() === wrapperState.activeUser.toLowerCase());
         if (user) {
@@ -95,7 +108,12 @@ export function saveState() {
         user.lastModified = Date.now();
       }
     }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(wrapperState));
+    const staySignedIn = localStorage.getItem('studyflow_stay_signed_in') !== 'false';
+    const stateToSave = { ...wrapperState };
+    if (!staySignedIn) {
+      stateToSave.activeUser = null;
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave));
     syncPushToServer();
   } catch (e) {
     console.error("Failed to write to localStorage", e);
@@ -367,6 +385,11 @@ async function hashPassword(password) {
 }
 
 
+export function isUsernameTaken(username) {
+  const cleanName = username.trim();
+  return wrapperState.users.some(u => u.username.toLowerCase() === cleanName.toLowerCase());
+}
+
 export async function registerUser(username, password, email) {
   const cleanName = username.trim();
   if (!cleanName) {
@@ -395,13 +418,44 @@ export async function registerUser(username, password, email) {
   });
   
   wrapperState.activeUser = cleanName;
+  localStorage.setItem('studyflow_stay_signed_in', 'true');
+  sessionStorage.setItem('studyflow_session_user', cleanName);
   appState = initialUserState;
   saveState();
 
   return { success: true };
 }
 
-export async function loginUser(username, password) {
+export function verifyUserCredentials(username, email) {
+  const user = wrapperState.users.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+  if (!user) {
+    return { success: false, message: 'Username is not registered.' };
+  }
+  if (!user.email || user.email.toLowerCase() !== email.trim().toLowerCase()) {
+    return { success: false, message: 'Email address does not match this username.' };
+  }
+  return { success: true, user };
+}
+
+export async function resetUserPassword(username, newPassword) {
+  const user = wrapperState.users.find(u => u.username.toLowerCase() === username.trim().toLowerCase());
+  if (!user) {
+    return { success: false, message: 'User not found.' };
+  }
+  const hashedPassword = await hashPassword(newPassword);
+  user.password = hashedPassword;
+  
+  // Log the user in
+  wrapperState.activeUser = user.username;
+  localStorage.setItem('studyflow_stay_signed_in', 'true');
+  sessionStorage.setItem('studyflow_session_user', user.username);
+  appState = user.state;
+  saveState();
+  
+  return { success: true };
+}
+
+export async function loginUser(username, password, staySignedIn = false) {
   const cleanName = username.trim();
   
   if (wrapperState.users.length === 0) {
@@ -437,6 +491,8 @@ export async function loginUser(username, password) {
   }
 
   wrapperState.activeUser = user.username;
+  localStorage.setItem('studyflow_stay_signed_in', staySignedIn ? 'true' : 'false');
+  sessionStorage.setItem('studyflow_session_user', user.username);
   appState = user.state;
   saveState();
 
@@ -446,6 +502,8 @@ export async function loginUser(username, password) {
 export function logoutUser() {
   saveState(); // save workspace
   wrapperState.activeUser = null;
+  localStorage.removeItem('studyflow_stay_signed_in');
+  sessionStorage.removeItem('studyflow_session_user');
   clearAppState();
   saveState();
 }
