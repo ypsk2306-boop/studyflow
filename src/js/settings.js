@@ -9,35 +9,39 @@ export function initSettings() {
   const helpContent = document.getElementById('settings-help-content');
   const aboutContent = document.getElementById('settings-about-content');
 
-  if (!btnProfile || !btnHelp || !btnAbout || !profileContent || !helpContent || !aboutContent) return;
-
   const deactivateAllSettingsTabs = () => {
-    btnProfile.classList.remove('active');
-    btnHelp.classList.remove('active');
-    btnAbout.classList.remove('active');
-    profileContent.style.display = 'none';
-    helpContent.style.display = 'none';
-    aboutContent.style.display = 'none';
+    if (btnProfile) btnProfile.classList.remove('active');
+    if (btnHelp) btnHelp.classList.remove('active');
+    if (btnAbout) btnAbout.classList.remove('active');
+    if (profileContent) profileContent.style.display = 'none';
+    if (helpContent) helpContent.style.display = 'none';
+    if (aboutContent) aboutContent.style.display = 'none';
   };
 
   // Settings view Sub-tabs switching
-  btnProfile.addEventListener('click', () => {
-    deactivateAllSettingsTabs();
-    btnProfile.classList.add('active');
-    profileContent.style.display = 'block';
-  });
+  if (btnProfile && profileContent) {
+    btnProfile.addEventListener('click', () => {
+      deactivateAllSettingsTabs();
+      btnProfile.classList.add('active');
+      profileContent.style.display = 'block';
+    });
+  }
 
-  btnHelp.addEventListener('click', () => {
-    deactivateAllSettingsTabs();
-    btnHelp.classList.add('active');
-    helpContent.style.display = 'block';
-  });
+  if (btnHelp && helpContent) {
+    btnHelp.addEventListener('click', () => {
+      deactivateAllSettingsTabs();
+      btnHelp.classList.add('active');
+      helpContent.style.display = 'block';
+    });
+  }
 
-  btnAbout.addEventListener('click', () => {
-    deactivateAllSettingsTabs();
-    btnAbout.classList.add('active');
-    aboutContent.style.display = 'block';
-  });
+  if (btnAbout && aboutContent) {
+    btnAbout.addEventListener('click', () => {
+      deactivateAllSettingsTabs();
+      btnAbout.classList.add('active');
+      aboutContent.style.display = 'block';
+    });
+  }
 
   // Interactive FAQs Accordion Clicks
   document.querySelectorAll('.faq-question').forEach(question => {
