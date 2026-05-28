@@ -3145,6 +3145,53 @@ body {
     height: 42px;
     font-size: 16px;
   }
+
+  /* Phone Layout Fixes - Reset Password OTP inputs responsiveness override */
+  .reset-otp-input-box {
+    width: 36px !important;
+    height: 42px !important;
+    font-size: 16px !important;
+  }
+
+  /* Stack login options on very small screens to avoid cramping */
+  .login-options-row {
+    flex-direction: column !important;
+    align-items: flex-start !important;
+    gap: 8px !important;
+  }
+
+  /* Weekly study target logs alignment adjustments for narrow screens */
+  .milestone-day {
+    width: 75px !important;
+  }
+  
+  .milestone-bar-container {
+    margin: 0 10px !important;
+  }
+  
+  .milestone-status {
+    width: 50px !important;
+  }
+
+  /* Notes Editor Header wrap for clean layouts on phones */
+  .editor-header {
+    flex-wrap: wrap !important;
+    gap: 10px !important;
+  }
+
+  .editor-header .page-meta {
+    order: 3 !important;
+    width: 100% !important;
+    margin-top: 4px !important;
+  }
+
+  .editor-header #notes-back-to-sidebar-btn {
+    order: 1 !important;
+  }
+
+  .editor-header .editor-actions {
+    order: 2 !important;
+  }
 }
 
 

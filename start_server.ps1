@@ -123,31 +123,44 @@ try {
                         $toEmail = $payload.email
                         $otp = $payload.otp
                         
-                        $smtpConfigPath = Join-Path $currentDir "smtp_config.json"
+                        $smtpUser = $payload.smtpUser
+                        $smtpPass = $payload.smtpPass
+                        $smtpServer = "smtp.gmail.com"
+                        if ($payload.smtpServer) { $smtpServer = $payload.smtpServer }
+                        $smtpPort = 587
+                        if ($payload.smtpPort) { $smtpPort = [int]$payload.smtpPort }
+                        
+                        # Fallback to smtp_config.json if not passed in HTTP payload
+                        if (-not $smtpUser -or -not $smtpPass) {
+                            $smtpConfigPath = Join-Path $currentDir "smtp_config.json"
+                            if (Test-Path $smtpConfigPath -PathType Leaf) {
+                                $smtpConfig = Get-Content $smtpConfigPath | ConvertFrom-Json
+                                $smtpUser = $smtpConfig.smtpUser
+                                $smtpPass = $smtpConfig.smtpPass
+                                if ($smtpConfig.smtpServer) { $smtpServer = $smtpConfig.smtpServer }
+                                if ($smtpConfig.smtpPort) { $smtpPort = [int]$smtpConfig.smtpPort }
+                            }
+                        }
+                        
                         $emailSent = $false
                         $errorMsg = ""
                         
                         # Store the OTP globally for test automation retrieval
                         $latestOtp = $otp
                         
-                        if (Test-Path $smtpConfigPath -PathType Leaf) {
-                            $smtpConfig = Get-Content $smtpConfigPath | ConvertFrom-Json
-                            $smtpUser = $smtpConfig.smtpUser
-                            $smtpPass = $smtpConfig.smtpPass
-                            
-                            if ($smtpUser -and $smtpPass -and $smtpUser -ne "your-email@gmail.com") {
-                                try {
-                                    $mail = New-Object System.Net.Mail.MailMessage
-                                    $mail.From = New-Object System.Net.Mail.MailAddress($smtpUser, "StudyFlow Support")
-                                    $mail.To.Add($toEmail)
-                                    $mail.Subject = "StudyFlow Password Recovery OTP"
-                                    
-                                    $htmlBody = @"
+                        if ($smtpUser -and $smtpPass -and $smtpUser -ne "your-email@gmail.com") {
+                            try {
+                                $mail = New-Object System.Net.Mail.MailMessage
+                                $mail.From = New-Object System.Net.Mail.MailAddress($smtpUser, "StudyFlow Support")
+                                $mail.To.Add($toEmail)
+                                $mail.Subject = "StudyFlow Password Recovery OTP"
+                                
+                                $htmlBody = @"
 <html>
 <body style="font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; color: #333;">
   <div style="max-width: 600px; margin: 0 auto; background: #fff; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); border: 1px solid #e0e0e0;">
-    <h2 style="color: #1a73e8; margin-top: 0;">StudyFlow Account Recovery</h2>
-    <p>We received a request to recover your password. Please use the following One-Time Password (OTP) to reset your password:</p>
+    <h2 style="color: #1a73e8; margin-top: 0;">StudyFlow Security OTP</h2>
+    <p>Please use the following One-Time Password (OTP) to verify your account or reset your password:</p>
     <div style="font-size: 24px; font-weight: bold; background: #f0f4f9; padding: 15px; text-align: center; letter-spacing: 5px; color: #1a73e8; border-radius: 4px; margin: 20px 0;">
       $otp
     </div>
@@ -156,19 +169,18 @@ try {
 </body>
 </html>
 "@
-                                    $mail.Body = $htmlBody
-                                    $mail.IsBodyHtml = $true
-                                    
-                                    $smtp = New-Object System.Net.Mail.SmtpClient("smtp.gmail.com", 587)
-                                    $smtp.EnableSsl = $true
-                                    $smtp.Credentials = New-Object System.Net.NetworkCredential($smtpUser, $smtpPass)
-                                    $smtp.Send($mail)
-                                    $emailSent = $true
-                                    Write-Host "[SMTP] Recovery OTP email successfully sent to $toEmail" -ForegroundColor Green
-                                } catch {
-                                    $errorMsg = $_.Exception.Message
-                                    Write-Host "[SMTP Error] Failed to send email to $toEmail : $errorMsg" -ForegroundColor Red
-                                }
+                                $mail.Body = $htmlBody
+                                $mail.IsBodyHtml = $true
+                                
+                                $smtp = New-Object System.Net.Mail.SmtpClient($smtpServer, $smtpPort)
+                                $smtp.EnableSsl = $true
+                                $smtp.Credentials = New-Object System.Net.NetworkCredential($smtpUser, $smtpPass)
+                                $smtp.Send($mail)
+                                $emailSent = $true
+                                Write-Host "[SMTP] Recovery OTP email successfully sent to $toEmail" -ForegroundColor Green
+                            } catch {
+                                $errorMsg = $_.Exception.Message
+                                Write-Host "[SMTP Error] Failed to send email to $toEmail : $errorMsg" -ForegroundColor Red
                             }
                         }
                         
