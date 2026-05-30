@@ -9,6 +9,7 @@ import { initAnalytics, renderAnalytics } from './analytics.js';
 import { initSettings, renderSettings } from './settings.js';
 import { initAuth, checkAuth } from './auth.js';
 import { initAI } from './ai.js';
+import { initFriends } from './friends.js';
 
 window.addEventListener('DOMContentLoaded', () => {
   // 1. Initialize State Storage
@@ -29,6 +30,7 @@ window.addEventListener('DOMContentLoaded', () => {
   initAnalytics();
   initSettings();
   initAI();
+  initFriends();
   initHeaderActions();
   initRouter();
 

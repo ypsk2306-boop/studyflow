@@ -113,6 +113,22 @@ export function initSettings() {
         dailyGoalMinutes: dailyGoalVal
       });
 
+      // Save custom SMTP configuration if elements exist
+      const smtpServerEl = document.getElementById('settings-smtp-server');
+      const smtpPortEl = document.getElementById('settings-smtp-port');
+      const smtpUserEl = document.getElementById('settings-smtp-user');
+      const smtpPassEl = document.getElementById('settings-smtp-pass');
+      
+      if (smtpServerEl && smtpPortEl && smtpUserEl && smtpPassEl) {
+        const smtpConfig = {
+          smtpServer: smtpServerEl.value.trim(),
+          smtpPort: parseInt(smtpPortEl.value) || 587,
+          smtpUser: smtpUserEl.value.trim(),
+          smtpPass: smtpPassEl.value.trim()
+        };
+        localStorage.setItem('studyflow_smtp_config', JSON.stringify(smtpConfig));
+      }
+
       successEl.style.display = 'block';
       
       // Auto-hide success banner
@@ -149,6 +165,27 @@ export function renderSettings() {
   if (shortInput) shortInput.value = settings.shortBreakTime || 5;
   if (longInput) longInput.value = settings.longBreakTime || 15;
   if (goalInput) goalInput.value = settings.dailyGoalMinutes || 120;
+
+  // Load SMTP config inputs if available
+  const smtpServerInput = document.getElementById('settings-smtp-server');
+  const smtpPortInput = document.getElementById('settings-smtp-port');
+  const smtpUserInput = document.getElementById('settings-smtp-user');
+  const smtpPassInput = document.getElementById('settings-smtp-pass');
+  
+  if (smtpServerInput && smtpPortInput && smtpUserInput && smtpPassInput) {
+    const smtpConfigStr = localStorage.getItem('studyflow_smtp_config');
+    if (smtpConfigStr) {
+      try {
+        const smtpConfig = JSON.parse(smtpConfigStr);
+        smtpServerInput.value = smtpConfig.smtpServer || '';
+        smtpPortInput.value = smtpConfig.smtpPort || '';
+        smtpUserInput.value = smtpConfig.smtpUser || '';
+        smtpPassInput.value = smtpConfig.smtpPass || '';
+      } catch (e) {
+        console.error("Failed to parse SMTP config", e);
+      }
+    }
+  }
 
   // Reset display banners
   const successEl = document.getElementById('settings-success-msg');

@@ -7,6 +7,7 @@ const DEFAULT_STATE = {
   tasks: [],
   sessions: [],
   notes: [],
+  friends: [],
   settings: {
     theme: 'dark',
     pomodoroTime: 25,
@@ -29,6 +30,7 @@ let appState = {
   tasks: [],
   sessions: [],
   notes: [],
+  friends: [],
   settings: { ...DEFAULT_STATE.settings }
 };
 
@@ -68,6 +70,7 @@ export function loadState() {
           appState.tasks = appState.tasks || [];
           appState.sessions = appState.sessions || [];
           appState.notes = appState.notes || [];
+          appState.friends = appState.friends || [];
           appState.settings = { ...DEFAULT_STATE.settings, ...appState.settings };
         } else {
           // Active user not found in list (corruption fallback)
@@ -94,6 +97,7 @@ function clearAppState() {
     tasks: [],
     sessions: [],
     notes: [],
+    friends: [],
     settings: { ...DEFAULT_STATE.settings }
   };
 }
@@ -756,4 +760,21 @@ export function updateActiveUserSettings(settingsFields) {
   appState.settings = { ...appState.settings, ...settingsFields };
   saveState();
   return { success: true };
+}
+
+export function addFriendState(friendUsername) {
+  if (!appState.friends) {
+    appState.friends = [];
+  }
+  const exists = appState.friends.some(f => f.toLowerCase() === friendUsername.toLowerCase());
+  if (!exists) {
+    appState.friends.push(friendUsername);
+    saveState();
+    return true;
+  }
+  return false;
+}
+
+export function getFriendsState() {
+  return appState.friends || [];
 }

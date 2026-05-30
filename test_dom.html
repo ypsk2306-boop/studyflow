@@ -73,6 +73,10 @@
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="bar-chart-2" aria-hidden="true" class="lucide lucide-bar-chart-2 lucide-icon"><path d="M5 21v-6"></path><path d="M12 21V3"></path><path d="M19 21V9"></path></svg>
           <span>Analytics</span>
         </button>
+        <button class="nav-btn" data-tab="friends" id="nav-btn-friends">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="message-square" aria-hidden="true" class="lucide lucide-message-square lucide-icon"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+          <span>Chat Room</span>
+        </button>
         <button class="nav-btn" data-tab="settings">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" data-lucide="settings" aria-hidden="true" class="lucide lucide-settings lucide-icon"><path d="M9.671 4.136a2.34 2.34 0 0 1 4.659 0 2.34 2.34 0 0 0 3.319 1.915 2.34 2.34 0 0 1 2.33 4.033 2.34 2.34 0 0 0 0 3.831 2.34 2.34 0 0 1-2.33 4.033 2.34 2.34 0 0 0-3.319 1.915 2.34 2.34 0 0 1-4.659 0 2.34 2.34 0 0 0-3.32-1.915 2.34 2.34 0 0 1-2.33-4.033 2.34 2.34 0 0 0 0-3.831A2.34 2.34 0 0 1 6.35 6.051a2.34 2.34 0 0 0 3.319-1.915"></path><circle cx="12" cy="12" r="3"></circle></svg>
           <span>Settings</span>
@@ -661,7 +665,72 @@
           </div>
         </section>
 
-        <!-- 6. SETTINGS VIEW -->
+        <!-- 6. CHAT ROOM (FRIENDS) VIEW -->
+        <section id="view-friends" class="app-view">
+          <div class="friends-chat-layout" id="friends-chat-container">
+            <!-- Sidebar Pane -->
+            <div class="friends-sidebar">
+              <div class="friends-sidebar-header">
+                <h3>Chats</h3>
+                <button type="button" class="btn btn-secondary add-friend-btn" id="open-add-friend-btn" title="Add Contact">
+                  <i data-lucide="user-plus"></i>
+                  <span>Add Friend</span>
+                </button>
+              </div>
+              <div class="friends-search-wrapper">
+                <i data-lucide="search"></i>
+                <input type="text" id="friends-search" placeholder="Search or start new chat...">
+              </div>
+              <div class="contacts-list" id="contacts-list-container">
+                <!-- Contacts populated dynamically -->
+              </div>
+            </div>
+
+            <!-- Chat Area Pane -->
+            <div class="friends-chat-area">
+              <!-- Empty State View -->
+              <div class="chat-empty-state" id="chat-empty-state-view">
+                <div class="empty-state-graphic">
+                  <i data-lucide="message-square"></i>
+                </div>
+                <h2>StudyFlow Chat Room</h2>
+                <p>Send and receive messages with your friends in real-time. Select a contact from the sidebar or click "Add Friend" to begin.</p>
+              </div>
+
+              <!-- Active Chat View -->
+              <div class="chat-active-panel" id="chat-active-panel-view" style="display: none;">
+                <!-- Chat Header -->
+                <div class="chat-header">
+                  <button class="mobile-chat-back-btn" id="chat-mobile-back-btn" title="Back to Chats">
+                    <i data-lucide="arrow-left"></i>
+                  </button>
+                  <div class="chat-header-avatar" id="active-chat-avatar">U</div>
+                  <div class="chat-header-info">
+                    <h4 id="active-chat-username">Username</h4>
+                    <span class="chat-status" id="active-chat-status">
+                      <span class="status-dot"></span> Online
+                    </span>
+                  </div>
+                </div>
+
+                <!-- Messages Feed -->
+                <div class="chat-messages-feed" id="chat-messages-feed-container">
+                  <!-- Messages populated dynamically -->
+                </div>
+
+                <!-- Chat Input Form -->
+                <form class="chat-input-form" id="friends-chat-form">
+                  <input type="text" id="friends-chat-input" placeholder="Type a message..." required autocomplete="off">
+                  <button type="submit" class="chat-send-btn" id="friends-chat-send-btn" title="Send Message">
+                    <i data-lucide="send"></i>
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. SETTINGS VIEW -->
         <section id="view-settings" class="app-view">
           <div class="settings-layout">
             <!-- Settings sub-sidebar tabs -->
@@ -751,6 +820,30 @@
                           <input type="checkbox" id="settings-ambient-enabled" style="width: 18px; height: 18px; accent-color: #6c5ce7; cursor: pointer;">
                           <span>Enable Ambient Sound Mixer in Focus Room</span>
                         </label>
+                      </div>
+                      
+                      <div class="settings-divider" style="margin: 16px 0 12px;"></div>
+                      <p style="font-size: 11px; color: var(--text-tertiary); margin-bottom: 12px;">Configure custom SMTP server details for OTP email delivery.</p>
+                      
+                      <div class="form-row" style="margin-bottom: 12px;">
+                        <div class="form-group flex-1">
+                          <label for="settings-smtp-server">SMTP Server</label>
+                          <input type="text" id="settings-smtp-server" placeholder="smtp.gmail.com" style="width: 100%;">
+                        </div>
+                        <div class="form-group" style="width: 100px;">
+                          <label for="settings-smtp-port">Port</label>
+                          <input type="number" id="settings-smtp-port" placeholder="587" style="width: 100%;">
+                        </div>
+                      </div>
+                      <div class="form-row" style="margin-bottom: 0;">
+                        <div class="form-group flex-1">
+                          <label for="settings-smtp-user">SMTP Email Address</label>
+                          <input type="email" id="settings-smtp-user" placeholder="your-email@gmail.com" style="width: 100%;">
+                        </div>
+                        <div class="form-group flex-1">
+                          <label for="settings-smtp-pass">SMTP App Password</label>
+                          <input type="password" id="settings-smtp-pass" placeholder="16-character app password" style="width: 100%;">
+                        </div>
                       </div>
                     </div>
                   </details>
@@ -1161,6 +1254,28 @@
         
         <button type="button" class="btn btn-secondary btn-sm" id="otp-back-btn" style="margin-top: 14px; width: 100%; justify-content: center;">Back to Sign Up</button>
       </div>
+    </div>
+  </div>
+
+  <!-- Add Friend Modal Overlay -->
+  <div class="modal-overlay" id="add-friend-modal" style="display: none;">
+    <div class="modal-card" style="max-width: 400px;">
+      <div class="modal-header">
+        <h3>Add Classmate to Chats</h3>
+        <button class="btn-icon close-modal-btn" id="close-add-friend-modal"><i data-lucide="x"></i></button>
+      </div>
+      <form class="modal-form" id="add-friend-form">
+        <div class="form-group">
+          <label for="add-friend-username">Friend's Username</label>
+          <input type="text" id="add-friend-username" placeholder="Enter username exactly..." required autocomplete="off">
+        </div>
+        <div class="modal-error-msg" id="add-friend-error" style="display: none; color: #ff5a5a; font-size: 12px; margin-bottom: 12px;"></div>
+        <div class="modal-success-msg" id="add-friend-success" style="display: none; color: #4ade80; font-size: 12px; margin-bottom: 12px;"></div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-secondary" id="cancel-add-friend-btn">Cancel</button>
+          <button type="submit" class="btn btn-primary">Add Friend</button>
+        </div>
+      </form>
     </div>
   </div>
 

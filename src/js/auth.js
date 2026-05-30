@@ -133,6 +133,17 @@ export function initAuth(onAuthSuccess) {
       generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
       const formatted = `${generatedOTP.slice(0,3)} ${generatedOTP.slice(3)}`;
 
+      // Retrieve stored SMTP config if available
+      let smtpParams = {};
+      const smtpConfigStr = localStorage.getItem('studyflow_smtp_config');
+      if (smtpConfigStr) {
+        try {
+          smtpParams = JSON.parse(smtpConfigStr);
+        } catch (e) {
+          console.error("Failed to parse local SMTP config", e);
+        }
+      }
+
       // Send OTP via backend email endpoint
       try {
         await fetch('http://localhost:3000/api/send-otp', {
@@ -140,7 +151,14 @@ export function initAuth(onAuthSuccess) {
           headers: {
             'Content-Type': 'application/json'
           },
-          body: JSON.stringify({ email: emailInput.value, otp: formatted })
+          body: JSON.stringify({ 
+            email: emailInput.value, 
+            otp: formatted,
+            smtpServer: smtpParams.smtpServer || '',
+            smtpPort: smtpParams.smtpPort || '',
+            smtpUser: smtpParams.smtpUser || '',
+            smtpPass: smtpParams.smtpPass || ''
+          })
         });
       } catch (fetchErr) {
         console.error("Failed to send OTP email:", fetchErr);
@@ -316,6 +334,17 @@ export function initAuth(onAuthSuccess) {
         generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
         const formatted = `${generatedOTP.slice(0,3)} ${generatedOTP.slice(3)}`;
         
+        // Retrieve stored SMTP config if available
+        let smtpParams = {};
+        const smtpConfigStr = localStorage.getItem('studyflow_smtp_config');
+        if (smtpConfigStr) {
+          try {
+            smtpParams = JSON.parse(smtpConfigStr);
+          } catch (e) {
+            console.error("Failed to parse local SMTP config", e);
+          }
+        }
+
         // Send OTP via backend email endpoint
         try {
           await fetch('http://localhost:3000/api/send-otp', {
@@ -323,7 +352,14 @@ export function initAuth(onAuthSuccess) {
             headers: {
               'Content-Type': 'application/json'
             },
-            body: JSON.stringify({ email: emailVal, otp: formatted })
+            body: JSON.stringify({ 
+              email: emailVal, 
+              otp: formatted,
+              smtpServer: smtpParams.smtpServer || '',
+              smtpPort: smtpParams.smtpPort || '',
+              smtpUser: smtpParams.smtpUser || '',
+              smtpPass: smtpParams.smtpPass || ''
+            })
           });
         } catch (fetchErr) {
           console.error("Failed to send OTP email:", fetchErr);

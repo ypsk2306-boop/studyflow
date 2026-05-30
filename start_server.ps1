@@ -225,6 +225,144 @@ try {
                 continue
             }
             
+            # GET all registered users for chat contact lookup
+            if ($urlPath -eq "/api/chat/users") {
+                if ($request.HttpMethod -eq "GET") {
+                    $syncFile = Join-Path $currentDir "database_sync.json"
+                    $usernames = @()
+                    if (Test-Path $syncFile -PathType Leaf) {
+                        $syncData = Get-Content $syncFile -Raw | ConvertFrom-Json
+                        if ($syncData -and $syncData.users) {
+                            foreach ($u in $syncData.users) {
+                                if ($u.username) {
+                                    $usernames += $u.username
+                                }
+                            }
+                        }
+                    }
+                    $jsonElements = @()
+                    foreach ($u in $usernames) {
+                        $u_esc = $u.Replace('\','\\').Replace('"','\"')
+                        $jsonElements += ('"{0}"' -f $u_esc)
+                    }
+                    $json = "[" + ($jsonElements -join ",") + "]"
+                    
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $resBytes = [System.Text.Encoding]::UTF8.GetBytes($json)
+                    $response.ContentLength64 = $resBytes.Length
+                    $response.OutputStream.Write($resBytes, 0, $resBytes.Length)
+                }
+                $response.Close()
+                continue
+            }
+            
+            # POST send chat message to another user
+            if ($urlPath -eq "/api/chat/send") {
+                if ($request.HttpMethod -eq "POST") {
+                    try {
+                        $reader = New-Object System.IO.StreamReader($request.InputStream, [System.Text.Encoding]::UTF8)
+                        $body = $reader.ReadToEnd()
+                        $reader.Close()
+                        
+                        $payload = ConvertFrom-Json $body
+                        $sender = $payload.sender
+                        $receiver = $payload.receiver
+                        $text = $payload.text
+                        $timestamp = $payload.timestamp
+                        if (-not $timestamp) {
+                            $timestamp = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+                        }
+                        $msgId = [Guid]::NewGuid().ToString()
+                        
+                        $msgObj = [PSCustomObject]@{
+                            id = $msgId
+                            sender = $sender
+                            receiver = $receiver
+                            text = $text
+                            timestamp = $timestamp
+                        }
+                        
+                        $chatsFile = Join-Path $currentDir "database_chats.json"
+                        $chatsList = @()
+                        if (Test-Path $chatsFile -PathType Leaf) {
+                            $content = Get-Content $chatsFile -Raw
+                            if ($content) {
+                                $chatsList = ConvertFrom-Json $content
+                                if (-not $chatsList) { $chatsList = @() }
+                                if ($chatsList -isnot [Array]) { $chatsList = @($chatsList) }
+                            }
+                        }
+                        $chatsList += $msgObj
+                        
+                        $jsonElements = @()
+                        foreach ($m in $chatsList) {
+                            $s_esc = $m.sender.Replace('\','\\').Replace('"','\"')
+                            $r_esc = $m.receiver.Replace('\','\\').Replace('"','\"')
+                            $t_esc = $m.text.Replace('\','\\').Replace('"','\"').Replace("`n","\n").Replace("`r","")
+                            $id_esc = $m.id
+                            $time_esc = $m.timestamp
+                            $jsonElements += ('{"id":"{0}","sender":"{1}","receiver":"{2}","text":"{3}","timestamp":{4}}' -f $id_esc, $s_esc, $r_esc, $t_esc, $time_esc)
+                        }
+                        $jsonOut = "[" + ($jsonElements -join ",") + "]"
+                        [System.IO.File]::WriteAllText($chatsFile, $jsonOut, [System.Text.Encoding]::UTF8)
+                        
+                        $response.ContentType = "application/json; charset=utf-8"
+                        $resBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":true}')
+                        $response.ContentLength64 = $resBytes.Length
+                        $response.OutputStream.Write($resBytes, 0, $resBytes.Length)
+                    } catch {
+                        $response.StatusCode = 500
+                        $errBytes = [System.Text.Encoding]::UTF8.GetBytes('{"success":false,"error":"Failed to save message"}')
+                        $response.ContentType = "application/json; charset=utf-8"
+                        $response.ContentLength64 = $errBytes.Length
+                        $response.OutputStream.Write($errBytes, 0, $errBytes.Length)
+                    }
+                }
+                $response.Close()
+                continue
+            }
+            
+            # GET all messages for a specific user (either sent or received)
+            if ($urlPath -eq "/api/chat/messages") {
+                if ($request.HttpMethod -eq "GET") {
+                    $user = $request.QueryString["user"]
+                    $chatsFile = Join-Path $currentDir "database_chats.json"
+                    $filtered = @()
+                    if ($user -and (Test-Path $chatsFile -PathType Leaf)) {
+                        $content = Get-Content $chatsFile -Raw
+                        if ($content) {
+                            $allChats = ConvertFrom-Json $content
+                            if ($allChats) {
+                                if ($allChats -isnot [Array]) { $allChats = @($allChats) }
+                                foreach ($m in $allChats) {
+                                    if ($m.sender -eq $user -or $m.receiver -eq $user) {
+                                        $filtered += $m
+                                    }
+                                }
+                            }
+                        }
+                    }
+                    
+                    $jsonElements = @()
+                    foreach ($m in $filtered) {
+                        $s_esc = $m.sender.Replace('\','\\').Replace('"','\"')
+                        $r_esc = $m.receiver.Replace('\','\\').Replace('"','\"')
+                        $t_esc = $m.text.Replace('\','\\').Replace('"','\"').Replace("`n","\n").Replace("`r","")
+                        $id_esc = $m.id
+                        $time_esc = $m.timestamp
+                        $jsonElements += ('{"id":"{0}","sender":"{1}","receiver":"{2}","text":"{3}","timestamp":{4}}' -f $id_esc, $s_esc, $r_esc, $t_esc, $time_esc)
+                    }
+                    $jsonOut = "[" + ($jsonElements -join ",") + "]"
+                    
+                    $response.ContentType = "application/json; charset=utf-8"
+                    $resBytes = [System.Text.Encoding]::UTF8.GetBytes($jsonOut)
+                    $response.ContentLength64 = $resBytes.Length
+                    $response.OutputStream.Write($resBytes, 0, $resBytes.Length)
+                }
+                $response.Close()
+                continue
+            }
+            
             # Route root directory to index.html
             if ($urlPath -eq "/") {
                 $urlPath = "/index.html"

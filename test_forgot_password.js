@@ -12,6 +12,12 @@ async function runTests() {
     div.style.borderBottom = '1px solid #333';
     div.style.fontFamily = 'monospace';
     document.getElementById('test-results-log').appendChild(div);
+    
+    // Sync log to backend server log
+    fetch('http://localhost:3000/api/log', {
+      method: 'POST',
+      body: "[Forgot Password Test] " + msg
+    }).catch(() => {});
   };
 
   const assert = (condition, msg) => {
@@ -23,6 +29,9 @@ async function runTests() {
 
   try {
     log("Starting Forgot Password Integration Tests...");
+
+    // Mock confirm dialog for headless execution
+    window.confirm = () => true;
 
     // Clear state first to ensure clean test environment
     localStorage.clear();
@@ -43,6 +52,24 @@ async function runTests() {
     log("Registering user ResetScholar...");
     document.getElementById('signup-form').dispatchEvent(new Event('submit'));
     await sleep(800);
+
+    // Fetch the generated OTP from the backend test API for Sign Up
+    log("Fetching signup OTP from backend...");
+    const signupOtpResponse = await fetch('http://localhost:3000/api/get-latest-otp');
+    const signupOtpData = await signupOtpResponse.json();
+    const signupOtp = signupOtpData.otp.replace(/\s+/g, '').trim();
+    assert(signupOtp.length === 6, `Retrieved 6-digit Sign Up OTP from backend: ${signupOtp}`);
+
+    // Fill OTP digits
+    const otpBoxes = document.querySelectorAll('.otp-input-box');
+    for (let i = 0; i < 6; i++) {
+      otpBoxes[i].value = signupOtp[i];
+      otpBoxes[i].dispatchEvent(new Event('input'));
+    }
+    
+    log("Submitting verification code for Sign Up...");
+    document.getElementById('otp-verify-btn').click();
+    await sleep(1000);
 
     // Verify logged in
     let wrapper = JSON.parse(localStorage.getItem('studyflow_app_state_multiuser'));

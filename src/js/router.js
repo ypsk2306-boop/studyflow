@@ -70,6 +70,10 @@ function updateHeader(tabId) {
       headerTitle.textContent = 'Productivity Analytics';
       headerSubtitle.textContent = 'Visualize streaks, performance, and trends';
       break;
+    case 'friends':
+      headerTitle.textContent = 'WhatsApp Chat Room';
+      headerSubtitle.textContent = 'Connect and collaborate with classmates';
+      break;
     default:
       headerTitle.textContent = 'StudyFlow';
       headerSubtitle.textContent = formattedDate;

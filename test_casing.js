@@ -13,6 +13,12 @@ async function runTests() {
     div.style.borderBottom = '1px solid #333';
     div.style.fontFamily = 'monospace';
     document.getElementById('test-results-log').appendChild(div);
+    
+    // Sync log to backend server log
+    fetch('http://localhost:3000/api/log', {
+      method: 'POST',
+      body: "[Casing Test] " + msg
+    }).catch(() => {});
   };
 
   const assert = (condition, msg) => {
@@ -24,6 +30,9 @@ async function runTests() {
 
   try {
     log("Starting Casing Integration Tests...");
+
+    // Mock confirm dialog for headless execution
+    window.confirm = () => true;
 
     // Clear state first to ensure clean test environment
     localStorage.clear();
@@ -89,6 +98,8 @@ async function runTests() {
     // Now attempt to log in using different username casing (scholarmode) and correct password (Password123)
     document.getElementById('login-username').value = "scholarmode";
     document.getElementById('login-password').value = "Password123";
+    const staySignedInCheckbox = document.getElementById('login-stay-signed-in');
+    if (staySignedInCheckbox) staySignedInCheckbox.checked = true;
     
     log("Logging in as 'scholarmode' (lowercase 's' and 'm') with correct password...");
     document.getElementById('login-form').dispatchEvent(new Event('submit'));
