@@ -74,10 +74,7 @@
           <i data-lucide="bar-chart-2"></i>
           <span>Analytics</span>
         </button>
-        <button class="nav-btn" data-tab="friends" id="nav-btn-friends">
-          <i data-lucide="message-square"></i>
-          <span>Chat Room</span>
-        </button>
+
         <button class="nav-btn" data-tab="settings">
           <i data-lucide="settings"></i>
           <span>Settings</span>
@@ -608,70 +605,7 @@
           </div>
         </section>
 
-        <!-- 6. CHAT ROOM (FRIENDS) VIEW -->
-        <section id="view-friends" class="app-view">
-          <div class="friends-chat-layout" id="friends-chat-container">
-            <!-- Sidebar Pane -->
-            <div class="friends-sidebar">
-              <div class="friends-sidebar-header">
-                <h3>Chats</h3>
-                <button type="button" class="btn btn-secondary add-friend-btn" id="open-add-friend-btn" title="Add Contact">
-                  <i data-lucide="user-plus"></i>
-                  <span>Add Friend</span>
-                </button>
-              </div>
-              <div class="friends-search-wrapper">
-                <i data-lucide="search"></i>
-                <input type="text" id="friends-search" placeholder="Search or start new chat...">
-              </div>
-              <div class="contacts-list" id="contacts-list-container">
-                <!-- Contacts populated dynamically -->
-              </div>
-            </div>
 
-            <!-- Chat Area Pane -->
-            <div class="friends-chat-area">
-              <!-- Empty State View -->
-              <div class="chat-empty-state" id="chat-empty-state-view">
-                <div class="empty-state-graphic">
-                  <i data-lucide="message-square"></i>
-                </div>
-                <h2>StudyFlow Chat Room</h2>
-                <p>Send and receive messages with your friends in real-time. Select a contact from the sidebar or click "Add Friend" to begin.</p>
-              </div>
-
-              <!-- Active Chat View -->
-              <div class="chat-active-panel" id="chat-active-panel-view" style="display: none;">
-                <!-- Chat Header -->
-                <div class="chat-header">
-                  <button class="mobile-chat-back-btn" id="chat-mobile-back-btn" title="Back to Chats">
-                    <i data-lucide="arrow-left"></i>
-                  </button>
-                  <div class="chat-header-avatar" id="active-chat-avatar">U</div>
-                  <div class="chat-header-info">
-                    <h4 id="active-chat-username">Username</h4>
-                    <span class="chat-status" id="active-chat-status">
-                      <span class="status-dot"></span> Online
-                    </span>
-                  </div>
-                </div>
-
-                <!-- Messages Feed -->
-                <div class="chat-messages-feed" id="chat-messages-feed-container">
-                  <!-- Messages populated dynamically -->
-                </div>
-
-                <!-- Chat Input Form -->
-                <form class="chat-input-form" id="friends-chat-form">
-                  <input type="text" id="friends-chat-input" placeholder="Type a message..." required autocomplete="off">
-                  <button type="submit" class="chat-send-btn" id="friends-chat-send-btn" title="Send Message">
-                    <i data-lucide="send"></i>
-                  </button>
-                </form>
-              </div>
-            </div>
-          </div>
-        </section>
 
         <!-- 7. SETTINGS VIEW -->
         <section id="view-settings" class="app-view">
@@ -1184,27 +1118,7 @@
     </div>
   </div>
 
-  <!-- Add Friend Modal Overlay -->
-  <div class="modal-overlay" id="add-friend-modal" style="display: none;">
-    <div class="modal-card" style="max-width: 400px;">
-      <div class="modal-header">
-        <h3>Add Classmate to Chats</h3>
-        <button class="btn-icon close-modal-btn" id="close-add-friend-modal"><i data-lucide="x"></i></button>
-      </div>
-      <form class="modal-form" id="add-friend-form">
-        <div class="form-group">
-          <label for="add-friend-username">Friend's Username</label>
-          <input type="text" id="add-friend-username" placeholder="Enter username exactly..." required autocomplete="off">
-        </div>
-        <div class="modal-error-msg" id="add-friend-error" style="display: none; color: #ff5a5a; font-size: 12px; margin-bottom: 12px;"></div>
-        <div class="modal-success-msg" id="add-friend-success" style="display: none; color: #4ade80; font-size: 12px; margin-bottom: 12px;"></div>
-        <div class="modal-actions">
-          <button type="button" class="btn btn-secondary" id="cancel-add-friend-btn">Cancel</button>
-          <button type="submit" class="btn btn-primary">Add Friend</button>
-        </div>
-      </form>
-    </div>
-  </div>
+
 
   <!-- Simulated Email Toast Notification -->
   <div class="simulated-email-toast" id="simulated-email-toast" style="display: none;">

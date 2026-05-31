@@ -1,18 +1,9 @@
 [Test Log Start]
-{
-  "source": "browser_debug",
-  "rawState": {
-    "users": [],
-    "activeUser": null
-  },
-  "activeUser": null,
-  "registeredLocal": []
-}
 [Casing Test] Starting Casing Integration Tests...
 [Casing Test] Cleared localStorage.
 [Casing Test] Submitting registration form...
 [Casing Test] Fetching registration OTP from backend...
-[Casing Test] PASS: Retrieved 6-digit OTP code from backend: 539243
+[Casing Test] PASS: Retrieved 6-digit OTP code from backend: 128302
 [Casing Test] Submitting verification code...
 [Casing Test] PASS: Logged in as ScholarMode
 [Casing Test] Logged out successfully.
