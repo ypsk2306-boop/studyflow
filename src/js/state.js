@@ -129,7 +129,7 @@ export async function syncPushToServer() {
   try {
     const data = localStorage.getItem(STORAGE_KEY);
     if (!data) return;
-    await fetch('http://localhost:3000/api/sync', {
+    await fetch(getApiUrl('/api/sync'), {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -144,7 +144,7 @@ export async function syncPushToServer() {
 // Pull server database state and perform cross-origin data merge
 export async function syncPullAndMerge() {
   try {
-    const response = await fetch('http://localhost:3000/api/sync');
+    const response = await fetch(getApiUrl('/api/sync'));
     if (!response.ok) return;
     const serverState = await response.json();
     if (!serverState || !Array.isArray(serverState.users)) return;
@@ -208,7 +208,7 @@ export async function syncPullAndMerge() {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(localState));
       
       // Push merged state back to server
-      await fetch('http://localhost:3000/api/sync', {
+      await fetch(getApiUrl('/api/sync'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -777,4 +777,13 @@ export function addFriendState(friendUsername) {
 
 export function getFriendsState() {
   return appState.friends || [];
+}
+
+export function getApiUrl(path) {
+  const base = window.location.protocol === 'file:' ? 'http://localhost:3000' : '';
+  return `${base}${path}`;
+}
+
+export function getRegisteredUsersLocal() {
+  return (wrapperState.users || []).map(u => u.username) || [];
 }

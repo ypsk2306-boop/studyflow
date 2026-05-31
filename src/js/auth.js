@@ -1,5 +1,5 @@
 // Authentication Module for StudyFlow
-import { getActiveUser, loginUser, registerUser, logoutUser, verifyUserCredentials, resetUserPassword, isUsernameTaken } from './state.js';
+import { getActiveUser, loginUser, registerUser, logoutUser, verifyUserCredentials, resetUserPassword, isUsernameTaken, getApiUrl } from './state.js';
 import { switchTab } from './router.js';
 
 let authSuccessCallback = null;
@@ -146,7 +146,7 @@ export function initAuth(onAuthSuccess) {
 
       // Send OTP via backend email endpoint
       try {
-        await fetch('http://localhost:3000/api/send-otp', {
+        await fetch(getApiUrl('/api/send-otp'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -162,6 +162,17 @@ export function initAuth(onAuthSuccess) {
         });
       } catch (fetchErr) {
         console.error("Failed to send OTP email:", fetchErr);
+      }
+
+      // Display simulated email toast immediately
+      const toast = document.getElementById('simulated-email-toast');
+      const codeEl = document.getElementById('toast-otp-code');
+      if (toast && codeEl) {
+        codeEl.textContent = formatted;
+        toast.style.display = 'flex';
+        if (window.lucide) {
+          window.lucide.createIcons();
+        }
       }
 
       // Hide signup form and show OTP verification panel
@@ -347,7 +358,7 @@ export function initAuth(onAuthSuccess) {
 
         // Send OTP via backend email endpoint
         try {
-          await fetch('http://localhost:3000/api/send-otp', {
+          await fetch(getApiUrl('/api/send-otp'), {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json'
@@ -363,6 +374,17 @@ export function initAuth(onAuthSuccess) {
           });
         } catch (fetchErr) {
           console.error("Failed to send OTP email:", fetchErr);
+        }
+
+        // Display simulated email toast immediately
+        const toast = document.getElementById('simulated-email-toast');
+        const codeEl = document.getElementById('toast-otp-code');
+        if (toast && codeEl) {
+          codeEl.textContent = formatted;
+          toast.style.display = 'flex';
+          if (window.lucide) {
+            window.lucide.createIcons();
+          }
         }
         
         // Show Reset Password panel

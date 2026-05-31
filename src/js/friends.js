@@ -1,5 +1,5 @@
 import { registerRoute } from './router.js';
-import { getActiveUser, getFriendsState, addFriendState } from './state.js';
+import { getActiveUser, getFriendsState, addFriendState, getApiUrl, getRegisteredUsersLocal } from './state.js';
 
 let activeFriend = null;
 let pollingInterval = null;
@@ -65,9 +65,35 @@ export function initFriends() {
       }
 
       try {
-        const response = await fetch('http://localhost:3000/api/chat/users');
-        if (!response.ok) throw new Error("Failed to contact user database.");
-        const registeredUsers = await response.json();
+        let registeredUsers = [];
+        try {
+          const localUsers = getRegisteredUsersLocal();
+          let serverUsers = [];
+          try {
+            const response = await fetch(getApiUrl('/api/chat/users'));
+            if (response.ok) {
+              serverUsers = await response.json();
+            }
+          } catch (e) {
+            // Ignore server fetch error, fallback will use local only
+          }
+          
+          // Merge both lists, case-insensitively keeping unique usernames
+          const mergedSet = new Set();
+          localUsers.forEach(u => { if (u) mergedSet.add(u.trim()); });
+          serverUsers.forEach(u => {
+            if (u) {
+              const uTrim = u.trim();
+              const exists = Array.from(mergedSet).some(existing => existing.toLowerCase() === uTrim.toLowerCase());
+              if (!exists) {
+                mergedSet.add(uTrim);
+              }
+            }
+          });
+          registeredUsers = Array.from(mergedSet);
+        } catch (fetchErr) {
+          registeredUsers = getRegisteredUsersLocal();
+        }
 
         const exists = registeredUsers.some(u => u && u.toLowerCase() === friendUsername.toLowerCase());
         if (!exists) {
@@ -124,7 +150,7 @@ export function initFriends() {
       };
 
       try {
-        const response = await fetch('http://localhost:3000/api/chat/send', {
+        const response = await fetch(getApiUrl('/api/chat/send'), {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'
@@ -167,7 +193,7 @@ async function fetchMessages() {
   const currentUser = getActiveUser();
   if (!currentUser) return;
   try {
-    const response = await fetch(`http://localhost:3000/api/chat/messages?user=${encodeURIComponent(currentUser)}`);
+    const response = await fetch(getApiUrl(`/api/chat/messages?user=${encodeURIComponent(currentUser)}`));
     if (response.ok) {
       cachedMessages = await response.json();
     }
